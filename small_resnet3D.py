@@ -39,12 +39,13 @@ class myConv(nn.Module):
 class Small_resnet3D(nn.Module):
     
     
-    def __init__(self, input_size,output_size,levels=4,lvl1_size=4):
+    def __init__(self, input_size,output_size,levels=3,lvl1_size=4, layers_in_lvl = 2):
         super().__init__()
         self.lvl1_size=lvl1_size
         self.levels=levels
         self.output_size=output_size
         self.input_size=input_size
+        self.layers_in_lvl = layers_in_lvl
         
         
         self.init_conv=myConv(input_size,lvl1_size)
@@ -55,12 +56,14 @@ class Small_resnet3D(nn.Module):
             
             if lvl_num!=0:
                 self.layers.append(myConv( int(lvl1_size*(lvl_num)), int(lvl1_size*(lvl_num+1))))
+             
+            for layer_num_in_lvl in range(layers_in_lvl):
+                self.layers.append(myConv( int(lvl1_size*(lvl_num+1)), int(lvl1_size*(lvl_num+1))))
+                
+                self.layers.append(myConv( int(lvl1_size*(lvl_num+1)), int(lvl1_size*(lvl_num+1))))
+                
+                self.layers.append(myConv( int(lvl1_size*(lvl_num+1)), int(lvl1_size*(lvl_num+1))))
             
-            self.layers.append(myConv( int(lvl1_size*(lvl_num+1)), int(lvl1_size*(lvl_num+1))))
-            
-            self.layers.append(myConv( int(lvl1_size*(lvl_num+1)), int(lvl1_size*(lvl_num+1))))
-            
-            self.layers.append(myConv( int(lvl1_size*(lvl_num+1)), int(lvl1_size*(lvl_num+1))))
             
         
         self.fc=nn.Linear(int(self.lvl1_size*self.levels), output_size)
@@ -81,21 +84,26 @@ class Small_resnet3D(nn.Module):
         for lvl_num in range(self.levels):
             
             
-            if lvl_num!=0:
+            for layer_num_in_lvl in range(self.layers_in_lvl):
+                
+                if lvl_num!=0 and lvl_num!=0:
+                    layer_num=layer_num+1
+                    y=self.layers[layer_num](x)
+                
+            
                 layer_num=layer_num+1
-                y=self.layers[layer_num](x)
+                x=self.layers[layer_num](y)
+                layer_num=layer_num+1
+                x=self.layers[layer_num](x)
+                layer_num=layer_num+1
+                x=self.layers[layer_num](x)
             
-            layer_num=layer_num+1
-            x=self.layers[layer_num](y)
-            layer_num=layer_num+1
-            x=self.layers[layer_num](x)
-            layer_num=layer_num+1
-            x=self.layers[layer_num](x)
+                x=x+y
             
-            x=x+y
+            x=F.max_pool3d(x, kernel_size = [2,2,1],  stride = [2,2,1])
             
-            x=F.max_pool3d(x, kernel_size = [2,2,1])
-            
+        
+        x  = F.adaptive_max_pool1d(x,1)
         
         shape=list(x.size())
         x=x.view(shape[0],-1)
