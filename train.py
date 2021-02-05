@@ -92,7 +92,7 @@ if __name__ == '__main__':
     optimizer = optim.Adam(model.parameters(),lr=Config.init_lr ,betas= (0.9, 0.999),eps=1e-8,weight_decay=1e-8)
     scheduler=optim.lr_scheduler.StepLR(optimizer, Config.step_size, gamma=Config.gamma, last_epoch=-1)
     
-    log = Log()
+    log = Log(names=['loss','acc'])
     
     for epoch_num in range(Config.max_epochs):
         
@@ -117,7 +117,7 @@ if __name__ == '__main__':
             res=res.detach().cpu().numpy()
             lbls=lbls.detach().cpu().numpy()
 
-            acc=np.mean((np.argmax(res,1)==np.argmax(lbls,1)).astype(np.float32))
+            acc = np.mean(((res>0.5)==(lbls>0.5)).astype(np.float32))
             
             log.append_train([loss,acc])
             
@@ -139,25 +139,30 @@ if __name__ == '__main__':
             res=res.detach().cpu().numpy()
             lbls=lbls.detach().cpu().numpy()
 
-            acc=np.mean((np.argmax(res,1)==np.argmax(lbls,1)).astype(np.float32))
+            acc = np.mean(((res>0.5)==(lbls>0.5)).astype(np.float32))
             
     
-            log.append_test([loss,acc])
+            log.append_valid([loss,acc])
         
         log.save_and_reset()
     
     
-        info= str(epoch_num) + '_' + str(get_lr(optimizer)) + '_train_'  + str(log.trainig_acc_log[-1]) + '_valid_' + str(log.valid_acc_log[-1]) 
+        info= str(epoch_num) + '_' + str(get_lr(optimizer)) + '_train_'  + str(log.train_logs['acc'][-1]) + '_valid_' + str(log.valid_logs['acc'][-1]) 
     
         print(info)
-        log.plot()
         
         
         scheduler.step()
 
+
+
         tmp_file_name= Config.tmp_save_dir + os.sep +Config.model_name + info
         torch.save(model.state_dict(),tmp_file_name +  '_model.pt')
-        log.save_plot(tmp_file_name +  '_plot.png')
+        
+        
+        log.plot(save_name = tmp_file_name +  '_plot.png')
+        
+        
         
         with open(tmp_file_name +  '_log.pkl', 'wb') as f:
             pickle.dump(log, f)

@@ -19,6 +19,18 @@ class Dataset(data.Dataset):
         data = torch.from_numpy(data)
         
         return data
+    
+    
+    
+    @staticmethod
+    def data_augmentation(data):
+        
+        data = data.astype(np.float32)
+        data = (data-600)/600
+        data = np.expand_dims(data, axis=0).copy()
+        data = torch.from_numpy(data)
+        
+        return data
      
         
     @staticmethod

@@ -22,20 +22,20 @@ class Log():
     def append_train(self,list_to_save):
         
         for value,name in zip(list_to_save,self.names):
-            self.train_log_tmp[name].append(value)
+            self.train_log_tmp[name] = self.train_log_tmp[name] + [value]
         
         
     def append_valid(self,list_to_save):
         for value,name in zip(list_to_save,self.names):
-            self.valid_log_tmp[name].append(value)
+            self.valid_log_tmp[name] = self.valid_log_tmp[name] + [value]
         
         
     def save_and_reset(self):
         
         
         for name in self.names:
-            self.trainig_log[name].append(np.mean(self.trainig_log_tmp[name]))
-            self.valid_log[name].append(np.mean(self.valid_log_tmp[name]))
+            self.train_logs[name] =  self.train_logs[name] + [np.mean(self.train_log_tmp[name])]
+            self.valid_logs[name] =  self.valid_logs[name] + [np.mean(self.valid_log_tmp[name])]
         
         
         self.train_log_tmp=dict(zip(self.names, [[]]*len(self.names)))
@@ -46,8 +46,8 @@ class Log():
     def plot(self,save_name=None):
         
         for name in self.names:
-            plt.plot( self.trainig_log, label = 'train')
-            plt.plot(self.valid_log, label = 'valid')
+            plt.plot( self.train_logs[name], label = 'train')
+            plt.plot(self.valid_logs[name], label = 'valid')
             plt.title(name)
             if save_name:
                 plt.savefig(save_name)
