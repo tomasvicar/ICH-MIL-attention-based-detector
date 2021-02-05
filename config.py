@@ -9,21 +9,24 @@ class Config:
     test_num_workers=0
     
     
-    data_path=r'Z:\CELL_MUNI\verse2020\training_data_resaved'
+    data_path='../raw2'
+    data_table_path = '../VFN_Annotations.csv'
     
     
     model_name='model'
     
-    train_batch_size = 8
-    test_batch_size = 4
+    train_batch_size = 2
+    test_batch_size = 2
     
     max_epochs = 12
     step_size=5
     gamma=0.1
     init_lr=0.001
     
-    crop_size_train = [128,128,25]
-    crop_size_valid = [128,128,25]
+    crop_size_train = [416,416,25]
+    crop_size_valid = [416,416,25]
     
+    
+    SPLIT_RATIO = [7,3]
     
     

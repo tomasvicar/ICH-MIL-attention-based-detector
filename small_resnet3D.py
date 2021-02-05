@@ -64,9 +64,9 @@ class Small_resnet3D(nn.Module):
                 
                 self.layers.append(myConv( int(lvl1_size*(lvl_num+1)), int(lvl1_size*(lvl_num+1))))
             
-            
+        self.conv_final = nn.Conv3d(int(lvl1_size * (self.levels)),output_size,3 ,1, 1)
         
-        self.fc=nn.Linear(int(self.lvl1_size*self.levels), output_size)
+        # self.fc=nn.Linear(int(self.lvl1_size*self.levels), output_size)
         
         
         for i, m in enumerate(self.modules()):
@@ -84,13 +84,13 @@ class Small_resnet3D(nn.Module):
         for lvl_num in range(self.levels):
             
             
+            if lvl_num!=0:
+                layer_num=layer_num+1
+                y=self.layers[layer_num](x)
+            
+            
             for layer_num_in_lvl in range(self.layers_in_lvl):
                 
-                if lvl_num!=0 and lvl_num!=0:
-                    layer_num=layer_num+1
-                    y=self.layers[layer_num](x)
-                
-            
                 layer_num=layer_num+1
                 x=self.layers[layer_num](y)
                 layer_num=layer_num+1
@@ -103,12 +103,14 @@ class Small_resnet3D(nn.Module):
             x=F.max_pool3d(x, kernel_size = [2,2,1],  stride = [2,2,1])
             
         
-        x  = F.adaptive_max_pool1d(x,1)
+        x = self.conv_final(x)
+        heatmap = x
+        x  = F.adaptive_max_pool3d(x,1)
         
         shape=list(x.size())
         x=x.view(shape[0],-1)
-        x=self.fc(x)
+        # x=self.fc(x)
         
-        
-        return x
+        return x,heatmap
+
         

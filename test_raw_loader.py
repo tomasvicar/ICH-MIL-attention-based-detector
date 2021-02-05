@@ -41,8 +41,9 @@ print(np.std(img1))
 print(np.mean(img1))
 
 
+import pandas as pd
 
-
+dfs = pd.read_csv('../VFN_Annotations.csv',delimiter=';')
 
 
 

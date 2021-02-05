@@ -8,6 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import pickle
+import pandas as pd
 
 
 from config import Config
@@ -15,7 +16,7 @@ from dataset import Dataset
 from utils.log import Log
 from small_resnet3D import Small_resnet3D
 from utils.losses import wce
-from log import get_lr
+from utils.log import get_lr
 
 
 
@@ -28,14 +29,52 @@ if __name__ == '__main__':
         os.mkdir(Config.tmp_save_dir)
     
     
-    file_names_train = []
-    labels_train = []
     
-    file_names_valid = []
-    labels_valid = []
+    df = pd.read_csv(Config.data_table_path,delimiter=';')
     
-    w_positive_tensor = []
-    w_negative_tensor = []
+    
+    file_names = df['Name'].tolist()
+    Kernel = df['Kernel'].to_numpy()
+    Hemorrhage = df['Hemorrhage'].to_numpy()
+    Fracture = df['Fracture'].to_numpy()
+    
+    use = Kernel == 0
+    file_names = [file_names[i] for i in range(len(use)) if use[i]]
+    Kernel = Kernel[use]
+    Hemorrhage = Hemorrhage[use]
+    Fracture = Fracture[use]  
+    
+    file_names = [Config.data_path + os.sep + file_name + '.mhd' for file_name in file_names]
+        
+    labels = np.stack((Hemorrhage,Fracture),axis=1)
+    labels = np.split(labels,labels.shape[0],axis=0)
+    labels = [label[0,:] for label in labels]
+    
+    
+    num_files =len(file_names)
+    state=np.random.get_state()
+    np.random.seed(42)
+    split_ratio_ind = int(np.floor(Config.SPLIT_RATIO[0] / (Config.SPLIT_RATIO[0] + Config.SPLIT_RATIO[1]) * num_files))
+    permuted_idx = np.random.permutation(num_files)
+    train_ind = permuted_idx[:split_ratio_ind]
+    valid_ind = permuted_idx[split_ratio_ind:]
+    
+    
+    file_names_train = [file_names[i] for i in range(len(file_names)) if i in train_ind]
+    labels_train = [labels[i] for i in range(len(file_names)) if i in train_ind]
+    
+    file_names_valid = [file_names[i] for i in range(len(file_names)) if i in valid_ind]
+    labels_valid = [labels[i] for i in range(len(file_names)) if i in valid_ind]
+    
+    
+    lbl_counts = np.sum(labels_train,axis=0)
+    num_files = len(file_names_train)
+    
+    w_positive=num_files/lbl_counts
+    w_negative=num_files/(num_files-lbl_counts)
+    
+    w_positive_tensor=torch.from_numpy(w_positive.astype(np.float32)).to(device)
+    w_negative_tensor=torch.from_numpy(w_negative.astype(np.float32)).to(device)
     
     
     
@@ -47,10 +86,10 @@ if __name__ == '__main__':
     
     
     
-    model = Small_resnet3D().to(device)
+    model = Small_resnet3D(input_size=1, output_size=len(w_positive)).to(device)
     
-    
-    optimizer = optim.Adam(model.parameters(),lr=Config. init_lr ,betas= (0.9, 0.999),eps=1e-8,weight_decay=1e-8)
+     
+    optimizer = optim.Adam(model.parameters(),lr=Config.init_lr ,betas= (0.9, 0.999),eps=1e-8,weight_decay=1e-8)
     scheduler=optim.lr_scheduler.StepLR(optimizer, Config.step_size, gamma=Config.gamma, last_epoch=-1)
     
     log = Log()
@@ -64,9 +103,9 @@ if __name__ == '__main__':
             batch=batch.to(device)
             lbls=lbls.to(device)
             
-            res=model(batch)
+            res,heatmap = model(batch)
             
-            res=torch.sigmoid(res)
+            res = torch.sigmoid(res)
             loss = wce(res,lbls,w_positive_tensor,w_negative_tensor)
             
             
@@ -80,7 +119,7 @@ if __name__ == '__main__':
 
             acc=np.mean((np.argmax(res,1)==np.argmax(lbls,1)).astype(np.float32))
             
-            log.append_train(loss,acc)
+            log.append_train([loss,acc])
             
             
             
@@ -90,9 +129,9 @@ if __name__ == '__main__':
             batch=batch.to(device)
             lbls=lbls.to(device)
             
-            res=model(batch)
+            res,heatmap = model(batch)
             
-            res=torch.sigmoid(res)
+            res = torch.sigmoid(res)
             loss = wce(res,lbls,w_positive_tensor,w_negative_tensor)
             
             
@@ -103,7 +142,7 @@ if __name__ == '__main__':
             acc=np.mean((np.argmax(res,1)==np.argmax(lbls,1)).astype(np.float32))
             
     
-            log.append_test(loss,acc)
+            log.append_test([loss,acc])
         
         log.save_and_reset()
     

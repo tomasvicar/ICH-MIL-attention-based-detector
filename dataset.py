@@ -20,23 +20,29 @@ class Dataset(data.Dataset):
         
         return data
      
-
+        
+    @staticmethod
+    def label_tranform(label):
+        
+        label = label.astype(np.float32)
+        label = torch.from_numpy(label)
+        
+        return label
+     
         
     
     
-    def __init__(self, split,file_names,labels,crop_size=[128,128,25]):
+    def __init__(self, split,file_names,labels,crop_size=[480,480,25]):
         
         
         self.split=split
-        self.file_names=file_names
         self.labels=labels
         self.crop_size=crop_size
+        self.file_names = file_names
         
+        self.sizes = [get_size_raw(file_name) for file_name in self.file_names]
         
-        self.sizes=[]
-        
-        for name in self.file_names:
-            self.sizes.append(get_size_raw(name))
+
             
             
     def __len__(self):
@@ -46,7 +52,10 @@ class Dataset(data.Dataset):
         
         crop_size = self.crop_size
         file_name = self.file_names[index]
-        size = self.file_names[index]
+        size = self.sizes[index]
+        
+        lbl = self.labels[index]
+        
         
         
         
@@ -59,8 +68,10 @@ class Dataset(data.Dataset):
         img = read_raw(file_name,crop_size,[int(p[0]),int(p[1]),int(p[2])])
         
         img = self.data_tranform(img)
+        
+        lbl = self.label_tranform(lbl)
           
-        return img
+        return img, lbl
         
         
         
