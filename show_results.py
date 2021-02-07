@@ -146,8 +146,8 @@ print(res[0,:])
 
 
 with napari.gui_qt():
-    viewer = napari.Viewer(order)
-    viewer.add_image(img_whole_check,name='img',channel_axis=)
+    viewer = napari.Viewer(order=[2,1,0])
+    viewer.add_image(img_whole_check,name='img')
     viewer.add_image(heatmap_hemo_whole, name='heatmap_hemo')
     viewer.add_image(heatmap_frac_whole, name='heatmap_frac')    
 
