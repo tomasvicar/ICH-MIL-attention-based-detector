@@ -9,14 +9,16 @@ import torch.nn.functional as F
 import torch.optim as optim
 import pickle
 import pandas as pd
+import json
 
 
 from config import Config
-from dataset import Dataset
+from my_dataset import MyDataset
 from utils.log import Log
 from small_resnet3D import Small_resnet3D
 from utils.losses import wce
 from utils.log import get_lr
+from read_filenames_and_labels import read_filenames_and_labels
 
 
 
@@ -30,41 +32,7 @@ if __name__ == '__main__':
     
     
     
-    df = pd.read_csv(Config.data_table_path,delimiter=';')
-    
-    
-    file_names = df['Name'].tolist()
-    Kernel = df['Kernel'].to_numpy()
-    Hemorrhage = df['Hemorrhage'].to_numpy()
-    Fracture = df['Fracture'].to_numpy()
-    
-    use = Kernel == 0
-    file_names = [file_names[i] for i in range(len(use)) if use[i]]
-    Kernel = Kernel[use]
-    Hemorrhage = Hemorrhage[use]
-    Fracture = Fracture[use]  
-    
-    file_names = [Config.data_path + os.sep + file_name + '.mhd' for file_name in file_names]
-        
-    labels = np.stack((Hemorrhage,Fracture),axis=1)
-    labels = np.split(labels,labels.shape[0],axis=0)
-    labels = [label[0,:] for label in labels]
-    
-    
-    num_files =len(file_names)
-    state=np.random.get_state()
-    np.random.seed(42)
-    split_ratio_ind = int(np.floor(Config.SPLIT_RATIO[0] / (Config.SPLIT_RATIO[0] + Config.SPLIT_RATIO[1]) * num_files))
-    permuted_idx = np.random.permutation(num_files)
-    train_ind = permuted_idx[:split_ratio_ind]
-    valid_ind = permuted_idx[split_ratio_ind:]
-    
-    
-    file_names_train = [file_names[i] for i in range(len(file_names)) if i in train_ind]
-    labels_train = [labels[i] for i in range(len(file_names)) if i in train_ind]
-    
-    file_names_valid = [file_names[i] for i in range(len(file_names)) if i in valid_ind]
-    labels_valid = [labels[i] for i in range(len(file_names)) if i in valid_ind]
+    file_names_train,labels_train,file_names_valid,labels_valid = read_filenames_and_labels()
     
     
     lbl_counts = np.sum(labels_train,axis=0)
@@ -78,10 +46,10 @@ if __name__ == '__main__':
     
     
     
-    loader = Dataset(split='train',file_names=file_names_train,labels=labels_train,crop_size=Config.crop_size_train)
+    loader = MyDataset(split='train',file_names=file_names_train,labels=labels_train,crop_size=Config.crop_size_train)
     trainloader= data.DataLoader(loader, batch_size=Config.train_batch_size, num_workers=Config.train_num_workers, shuffle=True,drop_last=True)
     
-    loader =  Dataset(split='valid',file_names=file_names_valid,labels=labels_valid,crop_size=Config.crop_size_valid)
+    loader =  MyDataset(split='valid',file_names=file_names_valid,labels=labels_valid,crop_size=Config.crop_size_valid)
     validLoader= data.DataLoader(loader, batch_size=Config.test_batch_size, num_workers=Config.test_num_workers, shuffle=False,drop_last=False)
     
     
@@ -90,7 +58,7 @@ if __name__ == '__main__':
     
      
     optimizer = optim.Adam(model.parameters(),lr=Config.init_lr ,betas= (0.9, 0.999),eps=1e-8,weight_decay=1e-8)
-    scheduler=optim.lr_scheduler.StepLR(optimizer, Config.step_size, gamma=Config.gamma, last_epoch=-1)
+    scheduler=optim.lr_scheduler.MultiStepLR(optimizer, milestones=Config.lr_steps, gamma=Config.gamma, last_epoch=-1)
     
     log = Log(names=['loss','acc'])
     
@@ -124,25 +92,27 @@ if __name__ == '__main__':
             
             
         model.eval()   
-        for it, (batch,lbls) in enumerate(validLoader): 
-            
-            batch=batch.to(device)
-            lbls=lbls.to(device)
-            
-            res,heatmap = model(batch)
-            
-            res = torch.sigmoid(res)
-            loss = wce(res,lbls,w_positive_tensor,w_negative_tensor)
-            
-            
-            loss=loss.detach().cpu().numpy()
-            res=res.detach().cpu().numpy()
-            lbls=lbls.detach().cpu().numpy()
-
-            acc = np.mean(((res>0.5)==(lbls>0.5)).astype(np.float32))
-            
+        with torch.no_grad():
+            for it, (batch,lbls) in enumerate(validLoader): 
+                
+                batch=batch.to(device)
+                lbls=lbls.to(device)
+                
+                res,heatmap = model(batch)
+                
+                res = torch.sigmoid(res)
+                loss = wce(res,lbls,w_positive_tensor,w_negative_tensor)
+                
+                
+                loss=loss.detach().cpu().numpy()
+                res=res.detach().cpu().numpy()
+                lbls=lbls.detach().cpu().numpy()
     
-            log.append_valid([loss,acc])
+                acc = np.mean(((res>0.5)==(lbls>0.5)).astype(np.float32))
+                
+        
+                log.append_valid([loss,acc])
+        
         
         log.save_and_reset()
     
@@ -170,6 +140,10 @@ if __name__ == '__main__':
         with open(tmp_file_name +  '_config.pkl', 'wb') as f:
             pickle.dump(Config(), f)
     
+        with open(tmp_file_name +  'filenames_and_lbls.json', 'w') as f:
+            filenames_and_lbls = {'file_names_train':file_names_train,'labels_train':np.stack(labels_train,axis=0).tolist(),
+                                  'file_names_valid':file_names_valid,'labels_valid':np.stack(labels_valid,axis=0).tolist()}
+            json.dump(filenames_and_lbls, f, indent=2) 
     
     
     

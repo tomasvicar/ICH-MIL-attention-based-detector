@@ -14,7 +14,9 @@ class myConv(nn.Module):
         self.do_batch=do_batch
         self.dov=dov
         self.conv=nn.Conv3d(in_size, out_size,filter_size,stride,pad)
-        self.bn=nn.BatchNorm3d(out_size,momentum=0.1)
+        
+        # self.bn=nn.BatchNorm3d(out_size,momentum=0.1)
+        self.bn = nn.GroupNorm(num_groups=int(out_size/4), num_channels=out_size )
         
         
         if self.dov>0:

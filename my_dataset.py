@@ -1,5 +1,4 @@
 import numpy as np
-from torch.utils import data
 import torch
 
 
@@ -8,7 +7,7 @@ from utils.raw_loaders import read_raw
 
 
 
-class Dataset(data.Dataset):
+class MyDataset(torch.utils.data.Dataset):
     
     @staticmethod
     def data_tranform(data):
@@ -70,14 +69,15 @@ class Dataset(data.Dataset):
         
         
         
-        
-        p = -1*np.ones(3)
-        p[0]=torch.randint(size[0]-crop_size[0],(1,1)).view(-1).numpy()[0]
-        p[1]=torch.randint(size[1]-crop_size[1],(1,1)).view(-1).numpy()[0]
-        p[2]=torch.randint(size[2]-crop_size[2],(1,1)).view(-1).numpy()[0]
-        
-        
-        img = read_raw(file_name,crop_size,[int(p[0]),int(p[1]),int(p[2])])
+        if not self.crop_size==None:
+            p = -1*np.ones(3)
+            p[0]=torch.randint(size[0]-crop_size[0],(1,1)).view(-1).numpy()[0]
+            p[1]=torch.randint(size[1]-crop_size[1],(1,1)).view(-1).numpy()[0]
+            p[2]=torch.randint(size[2]-crop_size[2],(1,1)).view(-1).numpy()[0]
+            
+            img = read_raw(file_name,crop_size,[int(p[0]),int(p[1]),int(p[2])])
+        else:
+            img = read_raw(file_name)
         
         img = self.data_tranform(img)
         

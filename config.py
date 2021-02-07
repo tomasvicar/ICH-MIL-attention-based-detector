@@ -1,3 +1,4 @@
+import numpy as np
 class Config:
     
     tmp_save_dir='../models_python'
@@ -15,16 +16,21 @@ class Config:
     
     model_name='model'
     
-    train_batch_size = 2
-    test_batch_size = 2
+    train_batch_size = 1
+    test_batch_size = 1
     
-    max_epochs = 12
-    step_size=5
-    gamma=0.1
-    init_lr=0.001
     
-    crop_size_train = [416,416,25]
-    crop_size_valid = [416,416,25]
+    lr_steps = np.cumsum([30,20,10])
+    gamma = 0.1
+    init_lr = 0.01
+    max_epochs = lr_steps[-1]
+    
+    
+    crop_size_train = [416,416,35]
+    crop_size_valid = [416,416,35]
+    
+    # crop_size_train = None
+    # crop_size_valid = None 
     
     
     SPLIT_RATIO = [7,3]
