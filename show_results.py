@@ -7,19 +7,20 @@ from scipy.ndimage import zoom
 from scipy.ndimage.filters import convolve
 import matplotlib.pyplot as plt
 import json
+import pickle
 
 
 from my_dataset import MyDataset
 from utils.raw_loaders import get_size_raw
 from utils.raw_loaders import read_raw
-from config import Config
 from small_resnet3D import Small_resnet3D
 
 
 
 
+index = 7
 
-model_name = r"D:\vicar\kuba_embc2021\models_python\model19_1e-05_train_0.32_valid_0.33333334"
+model_name = r"D:\vicar\kuba_embc2021\models_python\model36_0.001_train_0.34313726_valid_0.32608697"
 
 
 with open(model_name + 'filenames_and_lbls.json', 'r') as f:
@@ -29,8 +30,9 @@ file_names_valid =  filenames_and_lbls['file_names_valid']
 labels_valid =  filenames_and_lbls['labels_valid']
 labels_valid = [np.array(x) for x in labels_valid]
 
+with open(model_name +  '_config.pkl', 'rb') as f:
+    config = pickle.load(f)
 
-index = 7
 
 
 
@@ -51,7 +53,7 @@ model.eval()
 
 
 
-crop_size = Config.crop_size_valid
+crop_size = config.crop_size_valid
 size = get_size_raw(file_name)
         
         
@@ -136,10 +138,6 @@ img_whole_check = img_whole_check / w_whole
 
 
 
-heatmap_hemo_whole = np.transpose(heatmap_hemo_whole,(2,0,1))
-heatmap_frac_whole = np.transpose(heatmap_frac_whole,(2,0,1))
-img_whole_check = np.transpose(img_whole_check,(2,0,1))
-
 
 print('GT - hemo, frac')
 print(labels_valid)
@@ -148,11 +146,10 @@ print(res[0,:])
 
 
 with napari.gui_qt():
-    viewer = napari.Viewer()
-    viewer.add_image(img_whole_check,name='img')
+    viewer = napari.Viewer(order)
+    viewer.add_image(img_whole_check,name='img',channel_axis=)
     viewer.add_image(heatmap_hemo_whole, name='heatmap_hemo')
-    viewer.add_image(heatmap_frac_whole, name='heatmap_frac')
-    
+    viewer.add_image(heatmap_frac_whole, name='heatmap_frac')    
 
 
     

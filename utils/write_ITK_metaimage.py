@@ -1,7 +1,7 @@
 import numpy
 import os
 
-def write_ITK_metaimage(volume, name, spacing=[1,1,1]):
+def write_ITK_metaimage(volume, name, spacing=[1,1,1], ):
     """
     Writes a ITK metaimage file, which can be viewed by Paraview.
     See http://www.itk.org/Wiki/ITK/MetaIO/Documentation

@@ -1,6 +1,6 @@
 import numpy as np
 import SimpleITK as sitk
-
+from utils.write_ITK_metaimage import write_ITK_metaimage
 
 
 def get_size_raw(file_name):
@@ -47,3 +47,10 @@ def read_raw(file_name,extract_size=None,current_index=None):
     
     
     return img
+
+
+def write_raw(volume,name):
+    
+    volume = np.transpose(volume,[2, 1, 0])
+    write_ITK_metaimage(volume, name[:-4])
+    
