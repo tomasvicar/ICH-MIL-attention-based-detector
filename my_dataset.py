@@ -1,6 +1,10 @@
 import numpy as np
 import torch
-
+import napari
+import SimpleITK as sitk
+import random
+from scipy.ndimage import zoom
+from scipy.ndimage import rotate
 
 from utils.raw_loaders import get_size_raw
 from utils.raw_loaders import read_raw
@@ -23,14 +27,44 @@ class MyDataset(torch.utils.data.Dataset):
     
     @staticmethod
     def data_augmentation(data):
+        size = data.shape
+        
+
+        ## multiply augmentation
+        max_multiplier  = 0.1        
+        multiplier = 1 + random.random() * max_multiplier
+        if random.random()>0.5:
+            multiplier = 1 / multiplier
+            
+        data = data * multiplier
         
         
+        ## add augmentation
+        max_add  = 200
+        add_value = max_add -2*random.random() 
+        data = data + add_value
         
-        data = data.astype(np.float32)
-        data = (data-600)/600
-        data = np.expand_dims(data, axis=0).copy()
-        data = torch.from_numpy(data)
+        #all flips and rotations
+        if random.random()>0.5:
+            data = data[::-1,:,:]         
+        if random.random()>0.5:
+            data = data[:,::-1,:]       
+        if random.random()>0.5:
+            data = data[:,:,::-1]    
         
+        data = np.rot90(data,random.randrange(4),axes=(0,1))
+        
+        if random.random()>0.5:
+            data = data[::-1,:,:]         
+        if random.random()>0.5:
+            data = data[:,::-1,:]        
+        if random.random()>0.5:
+            data = data[:,:,::-1]
+
+        # Axial rotation
+        data = rotate(data, angle=random.randrange(30), axes = (0,1)) 
+
+
         return data
      
         

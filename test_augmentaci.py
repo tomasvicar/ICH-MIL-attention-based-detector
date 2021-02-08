@@ -3,6 +3,10 @@ import napari
 import numpy as np
 import SimpleITK as sitk
 import random
+from scipy.ndimage import rotate
+from scipy.ndimage import zoom
+
+
 
 from utils.raw_loaders import get_size_raw
 from utils.raw_loaders import read_raw
@@ -49,16 +53,12 @@ size = data.shape
 # if random.random()>0.5:
 #     data = data[:,::-1,:]
 
+# if random.random()>0.5:
+#     data = data[:,:,::-1]
 
 
-
-
-#####
-data = np.rot90(data,random.randrange(4),axes=(1,2))
-data = np.rot90(data,random.randrange(4),axes=(0,2))
+# #####
 # data = np.rot90(data,random.randrange(4),axes=(0,1))
-
-
 
 
 # if random.random()>0.5:
@@ -68,9 +68,10 @@ data = np.rot90(data,random.randrange(4),axes=(0,2))
 #     data = data[:,::-1,:]
 
 # if random.random()>0.5:
-#     data = data[:,:,:-1]
+#     data = data[:,:,::-1]
 
-
+data = rotate(data, angle=random.randrange(30), axes = (0,1)) 
+# data = rotate(data, angle=random.randrange(5), axes = (1,2))
 
 with napari.gui_qt():
     viewer = napari.Viewer(order=[2,1,0])
