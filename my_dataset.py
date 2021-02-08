@@ -24,6 +24,8 @@ class MyDataset(torch.utils.data.Dataset):
     @staticmethod
     def data_augmentation(data):
         
+        
+        
         data = data.astype(np.float32)
         data = (data-600)/600
         data = np.expand_dims(data, axis=0).copy()
@@ -78,6 +80,14 @@ class MyDataset(torch.utils.data.Dataset):
             img = read_raw(file_name,crop_size,[int(p[0]),int(p[1]),int(p[2])])
         else:
             img = read_raw(file_name)
+        
+        
+        img = img.astype(np.flot32 )
+        
+        
+        
+        img = self.data_augmentation(img)
+        
         
         img = self.data_tranform(img)
         
