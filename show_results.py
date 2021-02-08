@@ -20,7 +20,7 @@ from small_resnet3D import Small_resnet3D
 
 index = 7
 
-model_name = r"D:\vicar\kuba_embc2021\models_python\model36_0.001_train_0.34313726_valid_0.32608697"
+model_name = r"C:\Data\Nemcek\EMBC\models_python\model0_0.01_train_0.33333334_valid_0.32608697"
 
 
 with open(model_name + 'filenames_and_lbls.json', 'r') as f:

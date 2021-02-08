@@ -10,9 +10,10 @@ class Config:
     test_num_workers=0
     
     
-    data_path='../raw2'
-    data_table_path = '../VFN_Annotations.csv'
-    
+    # data_path='../raw2'
+    # data_table_path = '../VFN_Annotations.csv'
+    data_path='../raw_cq'
+    data_table_path = '../CQ_Annotations.csv'
     
     model_name='model'
     

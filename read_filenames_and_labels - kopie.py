@@ -10,10 +10,16 @@ def read_filenames_and_labels():
     df = pd.read_csv(Config.data_table_path,delimiter=';')
     
     
-    file_names = df['name'].tolist()
-    Hemorrhage = df['ICH'].to_numpy()
+    file_names = df['Name'].tolist()
+    Kernel = df['Kernel'].to_numpy()
+    Hemorrhage = df['Hemorrhage'].to_numpy()
     Fracture = df['Fracture'].to_numpy()
     
+    use = Kernel == 0
+    file_names = [file_names[i] for i in range(len(use)) if use[i]]
+    Kernel = Kernel[use]
+    Hemorrhage = Hemorrhage[use]
+    Fracture = Fracture[use]  
     
     file_names = [Config.data_path + os.sep + file_name + '.mhd' for file_name in file_names]
         
