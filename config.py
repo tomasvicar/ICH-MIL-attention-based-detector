@@ -36,4 +36,15 @@ class Config:
     
     SPLIT_RATIO = [7,3]
     
+    ###### Augmentation parameters
+    max_multiplier  = 0.1   # multiply augmentation 
+    max_add  = 200          # Add augmentation
+    max_crop_perc = 0.1     # Maximal random crop percentage
+    max_resize_perc = 0.1   # Maximal resize percentage
+    max_rot_angle = 30      # Maximal angle for axial rotation
+
+
+
+        
+    
     

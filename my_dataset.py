@@ -5,6 +5,8 @@ import SimpleITK as sitk
 import random
 from scipy.ndimage import zoom
 from scipy.ndimage import rotate
+from config import Config
+
 
 from utils.raw_loaders import get_size_raw
 from utils.raw_loaders import read_raw
@@ -27,11 +29,9 @@ class MyDataset(torch.utils.data.Dataset):
     
     @staticmethod
     def data_augmentation(data):
-        size = data.shape
         
-
         ## multiply augmentation
-        max_multiplier  = 0.1        
+        max_multiplier  = Config.max_multiplier        
         multiplier = 1 + random.random() * max_multiplier
         if random.random()>0.5:
             multiplier = 1 / multiplier
@@ -40,10 +40,33 @@ class MyDataset(torch.utils.data.Dataset):
         
         
         ## add augmentation
-        max_add  = 200
+        max_add = Config.max_add
         add_value = max_add -2*random.random() 
         data = data + add_value
         
+        ### Random crop
+        dat_size = data.shape
+        max_perc = Config.max_crop_perc
+        x_max_crop = round(dat_size[0]*max_perc)
+        y_max_crop = round(dat_size[1]*max_perc)
+        z_max_crop = round(dat_size[2]*max_perc)
+        
+        Xc = random.randint(0,x_max_crop)
+        Yc = random.randint(0,y_max_crop)
+        Zc = random.randint(0,z_max_crop)
+        
+        data = data[Xc : int(dat_size[0]-x_max_crop+Xc),
+                    Yc : int(dat_size[1]-y_max_crop+Yc),
+                    Zc : int(dat_size[2]-z_max_crop+Zc)]
+        
+        #### Random resize
+        max_resize_perc = Config.max_resize_perc
+        x_res = random.uniform(1-max_resize_perc,1+max_resize_perc)
+        y_res = random.uniform(1-max_resize_perc,1+max_resize_perc)
+        z_res = random.uniform(1-max_resize_perc,1+max_resize_perc)  
+        
+        data = zoom(data, (x_res,y_res,z_res))
+                
         #all flips and rotations
         if random.random()>0.5:
             data = data[::-1,:,:]         
@@ -62,8 +85,8 @@ class MyDataset(torch.utils.data.Dataset):
             data = data[:,:,::-1]
 
         # Axial rotation
-        data = rotate(data, angle=random.randrange(30), axes = (0,1)) 
-
+        max_rot_angle = Config.max_rot_angle
+        data = rotate(data, angle=random.randrange(max_rot_angle), axes = (0,1)) 
 
         return data
      
