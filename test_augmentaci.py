@@ -98,22 +98,27 @@ data = rotate(data, angle=random.randrange(30), axes = (0,1))
 # data = zoom(data, (x_res,y_res,z_res))
 
 data_sd = data.astype(np.float32).copy()
-data_sd = ((data-1009.0)/(1139.0-1009.0)) * (2^12)
+data_sd = ((data_sd-1009.0)/(1139.0-1009.0)) * (2^12)
 data_sd[data_sd<0.0] = 0.0
 data_sd[data_sd>2^12] = 2^12
-data_sd = data_sd.astype(np.uint16)
+# data_sd = data_sd.astype(np.uint16)
 
 data_br = data.astype(np.float32).copy()
-data_br = ((data-1024.0)/(1104.0-1024.0)) * (2^12)
-data_br[data_sd<0.0] = 0.0
-data_br[data_sd>2^12] = 2^12
-data_br = data_sd.astype(np.uint16)
+data_br = ((data_br-1024.0)/(1104.0-1024.0)) * (2^12)
+data_br[data_br<0.0] = 0.0
+data_br[data_br>2^12] = 2^12
+# data_br = data_sd.astype(np.uint16)
+
+conc_data = np.concatenate((np.expand_dims(data, axis=0),
+                            np.expand_dims(data_br, axis=0),
+                            np.expand_dims(data_sd, axis=0)), axis=0)
+conc_data = (conc_data - conc_data.min()) / (conc_data.max() - conc_data.min())
 
 
 
 with napari.gui_qt():
     viewer = napari.Viewer(order=[2,1,0])
-    viewer.add_image(data_br,name='data')
+    viewer.add_image(data,name='data')
     # viewer.add_image(data_orig,name='orig')
 
 
