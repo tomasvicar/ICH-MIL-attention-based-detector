@@ -18,9 +18,23 @@ class MyDataset(torch.utils.data.Dataset):
     @staticmethod
     def data_tranform(data):
         
-        data = data.astype(np.float32)
-        data = (data-600)/600
-        data = np.expand_dims(data, axis=0).copy()
+        data = data.astype(np.float32).copy()
+        
+        data_sd = data.astype(np.float32).copy()
+        data_sd = ((data-1009.0)/(1139.0-1009.0)) * (2^12)
+        data_sd[data_sd<0.0] = 0.0
+        data_sd[data_sd>2^12] = 2^12
+        data_sd = data_sd.astype(np.uint16)
+        
+        data_br = data.astype(np.float32).copy()
+        data_br = ((data-1024.0)/(1104.0-1024.0)) * (2^12)
+        data_br[data_sd<0.0] = 0.0
+        data_br[data_sd>2^12] = 2^12
+        data_br = data_sd.astype(np.uint16)
+        
+        # data = (data-600)/600 transformuj do 0-1
+        # np.concatenate
+        # data = np.expand_dims(data, axis=0).copy() # pridanie prazdnej dim
         data = torch.from_numpy(data)
         
         return data

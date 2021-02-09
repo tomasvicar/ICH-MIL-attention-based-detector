@@ -74,32 +74,46 @@ data = rotate(data, angle=random.randrange(30), axes = (0,1))
 # data = rotate(data, angle=random.randrange(5), axes = (1,2))
 
 
-### Random crop
-dat_size = data.shape
-max_perc = 0.1 
-x_max_crop = round(dat_size[0]*max_perc)
-y_max_crop = round(dat_size[1]*max_perc)
-z_max_crop = round(dat_size[2]*max_perc)
+# ### Random crop
+# dat_size = data.shape
+# max_perc = 0.1 
+# x_max_crop = round(dat_size[0]*max_perc)
+# y_max_crop = round(dat_size[1]*max_perc)
+# z_max_crop = round(dat_size[2]*max_perc)
 
-Xc = random.randint(0,x_max_crop)
-Yc = random.randint(0,y_max_crop)
-Zc = random.randint(0,z_max_crop)
+# Xc = random.randint(0,x_max_crop)
+# Yc = random.randint(0,y_max_crop)
+# Zc = random.randint(0,z_max_crop)
 
-data = data[Xc : int(dat_size[0]-x_max_crop+Xc),
-            Yc : int(dat_size[1]-y_max_crop+Yc),
-            Zc : int(dat_size[2]-z_max_crop+Zc)]
+# data = data[Xc : int(dat_size[0]-x_max_crop+Xc),
+#             Yc : int(dat_size[1]-y_max_crop+Yc),
+#             Zc : int(dat_size[2]-z_max_crop+Zc)]
 
-#### Random resize
-max_resize_perc = 0.1 
-x_res = random.uniform(1-max_resize_perc,1+max_resize_perc)
-y_res = random.uniform(1-max_resize_perc,1+max_resize_perc)
-z_res = random.uniform(1-max_resize_perc,1+max_resize_perc)
+# #### Random resize
+# max_resize_perc = 0.1 
+# x_res = random.uniform(1-max_resize_perc,1+max_resize_perc)
+# y_res = random.uniform(1-max_resize_perc,1+max_resize_perc)
+# z_res = random.uniform(1-max_resize_perc,1+max_resize_perc)
 
-data = zoom(data, (x_res,y_res,z_res))
+# data = zoom(data, (x_res,y_res,z_res))
+
+data_sd = data.astype(np.float32).copy()
+data_sd = ((data-1009.0)/(1139.0-1009.0)) * (2^12)
+data_sd[data_sd<0.0] = 0.0
+data_sd[data_sd>2^12] = 2^12
+data_sd = data_sd.astype(np.uint16)
+
+data_br = data.astype(np.float32).copy()
+data_br = ((data-1024.0)/(1104.0-1024.0)) * (2^12)
+data_br[data_sd<0.0] = 0.0
+data_br[data_sd>2^12] = 2^12
+data_br = data_sd.astype(np.uint16)
+
+
 
 with napari.gui_qt():
     viewer = napari.Viewer(order=[2,1,0])
-    viewer.add_image(data,name='data')
+    viewer.add_image(data_br,name='data')
     # viewer.add_image(data_orig,name='orig')
 
 
