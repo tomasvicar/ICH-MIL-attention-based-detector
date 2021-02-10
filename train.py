@@ -54,7 +54,7 @@ if __name__ == '__main__':
     
     
     
-    model = Small_resnet3D(input_size=1, output_size=len(w_positive)).to(device)
+    model = Small_resnet3D(input_size=3, output_size=len(w_positive)).to(device)
     
      
     optimizer = optim.Adam(model.parameters(),lr=Config.init_lr ,betas= (0.9, 0.999),eps=1e-8,weight_decay=1e-8)

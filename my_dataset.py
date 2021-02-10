@@ -155,7 +155,7 @@ class MyDataset(torch.utils.data.Dataset):
             img = read_raw(file_name)
         
         
-        img = img.astype(np.flot32 )
+        img = img.astype(np.float32 )
         
         
         

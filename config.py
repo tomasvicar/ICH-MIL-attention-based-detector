@@ -12,7 +12,8 @@ class Config:
     
     # data_path='../raw2'
     # data_table_path = '../VFN_Annotations.csv'
-    data_path='../raw_cq'
+    # data_path='../raw_cq'
+    data_path='../raw_cq_downsampled'
     data_table_path = '../CQ_Annotations.csv'
     
     model_name='model'
@@ -27,11 +28,12 @@ class Config:
     max_epochs = lr_steps[-1]
     
     
-    crop_size_train = [416,416,35]
-    crop_size_valid = [416,416,35]
+    # crop_size_train = [416,416,35]
+    # crop_size_valid = [416,416,35]
     
-    # crop_size_train = None
-    # crop_size_valid = None 
+    
+    crop_size_train = None
+    crop_size_valid = None 
     
     
     SPLIT_RATIO = [7,3]
