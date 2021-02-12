@@ -11,13 +11,14 @@ def read_filenames_and_labels():
     
     
     file_names = df['name'].tolist()
-    Hemorrhage = df['ICH'].to_numpy()
-    Fracture = df['Fracture'].to_numpy()
+    # Hemorrhage = df['ICH'].to_numpy()
+    # Fracture = df['Fracture'].to_numpy()
+    labels = df['ICH'].to_numpy().reshape(-1,1)
     
     
     file_names = [Config.data_path + os.sep + file_name + '.mhd' for file_name in file_names]
         
-    labels = np.stack((Hemorrhage,Fracture),axis=1)
+    # labels = np.stack((Hemorrhage,Fracture),axis=1)
     labels = np.split(labels,labels.shape[0],axis=0)
     labels = [label[0,:] for label in labels]
     

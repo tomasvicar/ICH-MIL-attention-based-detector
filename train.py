@@ -45,7 +45,6 @@ if __name__ == '__main__':
     w_negative_tensor=torch.from_numpy(w_negative.astype(np.float32)).to(device)
     
     
-    
     loader = MyDataset(split='train',file_names=file_names_train,labels=labels_train,crop_size=Config.crop_size_train)
     trainloader= data.DataLoader(loader, batch_size=Config.train_batch_size, num_workers=Config.train_num_workers, shuffle=True,drop_last=True)
     
@@ -55,6 +54,7 @@ if __name__ == '__main__':
     
     
     model = Small_resnet3D(input_size=3, output_size=len(w_positive)).to(device)
+    # model = Small_resnet3D(input_size=1, output_size=len(w_positive)).to(device)
     
      
     optimizer = optim.Adam(model.parameters(),lr=Config.init_lr ,betas= (0.9, 0.999),eps=1e-8,weight_decay=1e-8)
@@ -66,9 +66,8 @@ if __name__ == '__main__':
         
         model.train()
         for it, (batch,lbls) in enumerate(trainloader):
-            
-            
-            batch=batch.to(device)
+                       
+            batch=batch.to(device)            
             lbls=lbls.to(device)
             
             res,heatmap = model(batch)
