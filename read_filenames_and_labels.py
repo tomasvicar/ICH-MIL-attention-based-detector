@@ -11,20 +11,22 @@ def read_filenames_and_labels():
     
     
     file_names = df['name'].tolist()
-    # Hemorrhage = df['ICH'].to_numpy()
-    # Fracture = df['Fracture'].to_numpy()
-    labels = df['ICH'].to_numpy().reshape(-1,1)
+    Hemorrhage = df['ICH'].to_numpy()
+    Fracture = df['Fracture'].to_numpy()
     
     
     file_names = [Config.data_path + os.sep + file_name + '.mhd' for file_name in file_names]
         
-    # labels = np.stack((Hemorrhage,Fracture),axis=1)
+    labels = np.stack([Hemorrhage],axis=1)#########################################
     labels = np.split(labels,labels.shape[0],axis=0)
     labels = [label[0,:] for label in labels]
     
     
+    # file_names = file_names[:15]#######################################################
+    # labels = labels[:15]
+    
+    
     num_files =len(file_names)
-    state=np.random.get_state()
     np.random.seed(42)
     split_ratio_ind = int(np.floor(Config.SPLIT_RATIO[0] / (Config.SPLIT_RATIO[0] + Config.SPLIT_RATIO[1]) * num_files))
     permuted_idx = np.random.permutation(num_files)

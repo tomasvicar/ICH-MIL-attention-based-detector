@@ -41,20 +41,23 @@ if __name__ == '__main__':
     w_positive=num_files/lbl_counts
     w_negative=num_files/(num_files-lbl_counts)
     
+    # w_positive = np.array([1])##############
+    # w_negative = np.array([1])
+    
+    
     w_positive_tensor=torch.from_numpy(w_positive.astype(np.float32)).to(device)
     w_negative_tensor=torch.from_numpy(w_negative.astype(np.float32)).to(device)
     
     
-    loader = MyDataset(split='train',file_names=file_names_train,labels=labels_train,crop_size=Config.crop_size_train)
+    loader = MyDataset(split='train',file_names=file_names_train,labels=labels_train)
     trainloader= data.DataLoader(loader, batch_size=Config.train_batch_size, num_workers=Config.train_num_workers, shuffle=True,drop_last=True)
     
-    loader =  MyDataset(split='valid',file_names=file_names_valid,labels=labels_valid,crop_size=Config.crop_size_valid)
+    loader =  MyDataset(split='valid',file_names=file_names_valid,labels=labels_valid)
     validLoader= data.DataLoader(loader, batch_size=Config.test_batch_size, num_workers=Config.test_num_workers, shuffle=False,drop_last=False)
     
     
     
-    model = Small_resnet3D(input_size=3, output_size=len(w_positive)).to(device)
-    # model = Small_resnet3D(input_size=1, output_size=len(w_positive)).to(device)
+    model = Config.net(input_size=3, output_size=len(w_positive)).to(device)
     
      
     optimizer = optim.Adam(model.parameters(),lr=Config.init_lr ,betas= (0.9, 0.999),eps=1e-8,weight_decay=1e-8)

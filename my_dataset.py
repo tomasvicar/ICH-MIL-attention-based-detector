@@ -20,22 +20,25 @@ class MyDataset(torch.utils.data.Dataset):
         
         data = data.astype(np.float32).copy()
         
+        
         ##### Subdural window
-        data_sd = data.astype(np.float32).copy()
-        data_sd = ((data_sd-1009.0)/(1139.0-1009.0)) * (2^12)
+        data_sd = data.copy()
+        data_sd = ((data_sd-1009.0)/(1139.0-1009.0)) * (2**12)
         data_sd[data_sd<0.0] = 0.0
-        data_sd[data_sd>2^12] = 2^12
+        data_sd[data_sd>2**12] = 2**12
         ##### Brain window
-        data_br = data.astype(np.float32).copy()
-        data_br = ((data_br-1024.0)/(1104.0-1024.0)) * (2^12)
+        data_br = data.copy()
+        data_br = ((data_br-1024.0)/(1104.0-1024.0)) * (2**12)
         data_br[data_br<0.0] = 0.0
-        data_br[data_br>2^12] = 2^12
+        data_br[data_br>2**12] = 2**12
+        
+
         
         data = np.concatenate((np.expand_dims(data, axis=0),
                                 np.expand_dims(data_br, axis=0),
                                 np.expand_dims(data_sd, axis=0)), axis=0)
-        ##### Rescale data to 0-1
-        data = (data - data.min()) / (data.max() - data.min())
+
+        data = (data-400)/1000
 
         data = torch.from_numpy(data)
         
@@ -101,8 +104,8 @@ class MyDataset(torch.utils.data.Dataset):
         #     data = data[:,:,::-1]
 
         # Axial rotation
-        max_rot_angle = Config.max_rot_angle
-        data = rotate(data, angle=random.randrange(max_rot_angle), axes = (0,1)) 
+        # max_rot_angle = Config.max_rot_angle
+        # data = rotate(data, angle=random.randrange(max_rot_angle), axes = (0,1)) 
 
         return data
      
@@ -118,12 +121,11 @@ class MyDataset(torch.utils.data.Dataset):
         
     
     
-    def __init__(self, split,file_names,labels,crop_size=[480,480,25]):
+    def __init__(self, split,file_names,labels):
         
         
         self.split=split
         self.labels=labels
-        self.crop_size=crop_size
         self.file_names = file_names
         
         self.sizes = [get_size_raw(file_name) for file_name in self.file_names]
@@ -136,23 +138,13 @@ class MyDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         
-        crop_size = self.crop_size
         file_name = self.file_names[index]
         size = self.sizes[index]
         
         lbl = self.labels[index]
         
-        
-        
-        if not self.crop_size==None:
-            p = -1*np.ones(3)
-            p[0]=torch.randint(size[0]-crop_size[0],(1,1)).view(-1).numpy()[0]
-            p[1]=torch.randint(size[1]-crop_size[1],(1,1)).view(-1).numpy()[0]
-            p[2]=torch.randint(size[2]-crop_size[2],(1,1)).view(-1).numpy()[0]
-            
-            img = read_raw(file_name,crop_size,[int(p[0]),int(p[1]),int(p[2])])
-        else:
-            img = read_raw(file_name)
+
+        img = read_raw(file_name)
         
         
         img = img.astype(np.float32 )
