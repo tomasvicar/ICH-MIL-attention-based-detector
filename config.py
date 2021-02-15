@@ -20,12 +20,12 @@ class Config:
     
     model_name='model'
     
-    train_batch_size = 16
-    test_batch_size = 16
+    train_batch_size = 32
+    test_batch_size = 32
     
     
     # lr_steps = np.cumsum([50,20,10])
-    lr_steps = np.cumsum([30,10,5])
+    lr_steps = np.cumsum([50,20,10])
     gamma = 0.1
     init_lr = 0.001
     max_epochs = lr_steps[-1]
@@ -39,9 +39,11 @@ class Config:
     ###### Augmentation parameters
     max_multiplier  = 0.05   # multiply augmentation 
     max_add  = 10/1000          # Add augmentation
-    max_crop_perc = 0.1     # Maximal random crop percentage
-    max_resize_perc = 0.1   # Maximal resize percentage
-    max_rot_angle = 0      # Maximal angle for axial rotation
+    scale_range = 0.1
+    shears_range = 0.05
+    tilt_range = 0
+    translation_range = 50
+    rotation_range = 20
 
 
 

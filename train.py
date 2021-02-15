@@ -9,6 +9,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 import pickle
 import json
+import matplotlib.pyplot as plt
+from skimage.transform import resize
 
 
 
@@ -48,7 +50,7 @@ if __name__ == '__main__':
     trainloader= data.DataLoader(loader, batch_size=Config.train_batch_size, num_workers=Config.train_num_workers, shuffle=True,drop_last=True)
     
     loader =  MyDataset(split='valid',file_names=file_names_valid,labels=labels_valid)
-    validLoader= data.DataLoader(loader, batch_size=Config.test_batch_size, num_workers=Config.test_num_workers, shuffle=False,drop_last=False)
+    validLoader= data.DataLoader(loader, batch_size=Config.test_batch_size, num_workers=Config.test_num_workers, shuffle=True,drop_last=True)
     
     
     model = Config.net(input_size=3, output_size=len(w_positive)).to(device)
@@ -64,8 +66,8 @@ if __name__ == '__main__':
         model.train()
         N = len(trainloader)
         for it, (batch,lbls) in enumerate(trainloader):
-            if (it % 1) == 0:
-                print(str(it) + ' / ' + str(N))
+            if (it % 500) == 0:
+                print('train  ' + str(it) + ' / ' + str(N))
                        
             batch=batch.to(device)            
             lbls=lbls.to(device)
@@ -94,8 +96,8 @@ if __name__ == '__main__':
         with torch.no_grad():
             N = len(validLoader)
             for it, (batch,lbls) in enumerate(validLoader): 
-                if (it % 1) == 0:
-                    print(str(it) + ' / ' + str(N))
+                if (it % 500) == 0:
+                    print('valid  ' +  str(it) + ' / ' + str(N))
                 
                 batch=batch.to(device)
                 lbls=lbls.to(device)
@@ -114,6 +116,29 @@ if __name__ == '__main__':
                 
         
                 log.append_valid([loss,acc])
+        
+        
+
+        batch = batch.detach().cpu().numpy()
+        heatmap = heatmap.detach().cpu().numpy()
+        lbls = lbls.detach().cpu().numpy()
+        
+        for k in range(batch.shape[0]):
+            res_tmp = res[k,0]
+            lbl_tmp = lbls[k,0]
+            img_tmp = batch[k,1,:,:]
+            heatmap_tmp = heatmap[k,0,:,:]
+            heatmap_tmp = resize(heatmap_tmp,img_tmp.shape)
+            
+            plt.figure(figsize=[6.4*3, 4.8*3])
+            plt.subplot(121)
+            plt.imshow(img_tmp)
+            plt.title(str(k) + '  gt=' + str(lbl_tmp) + '  res=' + str(res_tmp))
+            
+            plt.subplot(122)
+            plt.imshow(heatmap_tmp)
+            plt.show()
+            
         
         
         log.save_and_reset()

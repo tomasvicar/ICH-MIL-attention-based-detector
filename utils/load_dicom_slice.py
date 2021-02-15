@@ -10,7 +10,7 @@ def load_dicom_slice(name):
     
     img = sitk.GetArrayFromImage(reader.Execute())
     
-    img = img.transpose(2,1,0)
+    img = img.transpose(1,2,0)
     
     
     return img[:,:,0]

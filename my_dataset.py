@@ -7,7 +7,7 @@ from config import Config
 
 from utils.load_dicom_slice import load_dicom_slice
 from utils.get_dicom_slice_size import get_dicom_slice_size
-
+from utils.matrixDeformer import MatrixDeformer
 
 
 class MyDataset(torch.utils.data.Dataset):
@@ -16,7 +16,7 @@ class MyDataset(torch.utils.data.Dataset):
     def data_tranform(data):
         
         data = data + 1024
-        data[data<0] = 0
+        data[data<-500] = 0
         data = data.astype(np.float32).copy()
         
         
@@ -62,6 +62,17 @@ class MyDataset(torch.utils.data.Dataset):
         add_value = max_add -2*random.random() 
         data = data + add_value
         
+        ## afine transformation
+        md = MatrixDeformer(scale_range=Config.scale_range,shears_range=Config.shears_range,tilt_range=Config.tilt_range,
+                            translation_range=Config.translation_range,rotation_range=Config.rotation_range)
+        data = md.augment(data)
+        
+        
+        
+        if random.random() > 0.5:
+            data = data[:,::-1]
+        
+        
         return data
      
         
@@ -82,8 +93,7 @@ class MyDataset(torch.utils.data.Dataset):
         self.split=split
         self.labels=labels
         self.file_names = file_names
-        
-        self.sizes = [get_dicom_slice_size(file_name) for file_name in self.file_names]
+
             
             
     def __len__(self):
@@ -92,7 +102,6 @@ class MyDataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
         
         file_name = self.file_names[index]
-        size = self.sizes[index]
         
         lbl = self.labels[index]
         
@@ -102,8 +111,8 @@ class MyDataset(torch.utils.data.Dataset):
         
         img = img.astype(np.float32)
         
-        
-        img = self.data_augmentation(img)
+        if self.split == 'train':
+            img = self.data_augmentation(img)
         
         
         
