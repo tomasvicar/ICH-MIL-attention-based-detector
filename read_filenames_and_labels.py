@@ -10,28 +10,33 @@ def read_filenames_and_labels():
     df = pd.read_csv(Config.data_table_path,delimiter=';')
     
     
-    file_names = df['name'].tolist()
-    Hemorrhage = df['ICH'].to_numpy()
-    Fracture = df['Fracture'].to_numpy()
+    file_names = df['Path'].tolist()
+    BBs = df['BBs'].to_list()
+    Pat_ind = df['Pat_ind'].to_numpy()
     
     
-    file_names = [Config.data_path + os.sep + file_name + '.mhd' for file_name in file_names]
+    file_names = [Config.data_path + os.sep + file_name for file_name in file_names]
         
-    labels = np.stack([Hemorrhage],axis=1)#########################################
-    labels = np.split(labels,labels.shape[0],axis=0)
-    labels = [label[0,:] for label in labels]
+    
+    labels = [np.array(isinstance(label, str)).astype(np.float32).reshape(-1)  for label in BBs]
     
     
-    # file_names = file_names[:15]#######################################################
-    # labels = labels[:15]
+    
+    u = np.unique(Pat_ind)
     
     
-    num_files =len(file_names)
+    num_files =len(u)
     np.random.seed(42)
     split_ratio_ind = int(np.floor(Config.SPLIT_RATIO[0] / (Config.SPLIT_RATIO[0] + Config.SPLIT_RATIO[1]) * num_files))
     permuted_idx = np.random.permutation(num_files)
-    train_ind = permuted_idx[:split_ratio_ind]
-    valid_ind = permuted_idx[split_ratio_ind:]
+    train_ind_pat = u[permuted_idx[:split_ratio_ind]]
+    valid_ind_pat = u[permuted_idx[split_ratio_ind:]]
+    
+    
+    train_ind = np.argwhere(np.isin(Pat_ind,train_ind_pat))
+    valid_ind = np.argwhere(np.isin(Pat_ind,valid_ind_pat))
+    
+    
     
     
     file_names_train = [file_names[i] for i in range(len(file_names)) if i in train_ind]

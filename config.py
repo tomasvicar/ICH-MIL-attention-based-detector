@@ -1,42 +1,37 @@
 import numpy as np
-from small_resnet3D_noheatmap import Small_resnet3D_noheatmap
-from small_resnet3D import Small_resnet3D
+from resnet_2D_heatmap import Resnet_2D_heatmap
 
 class Config:
     
     tmp_save_dir='../models_python'
     
-    # train_num_workers=6
-    # test_num_workers=3
-    
+
     # train_num_workers=2
     # test_num_workers=2
     
-    train_num_workers=0
-    test_num_workers=0
+    train_num_workers=6
+    test_num_workers=2
     
     
-    # data_path='../raw2'
-    # data_table_path = '../VFN_Annotations.csv'
-    # data_path='../raw_cq'
-    data_path='../raw_cq_subsampled4x'
-    data_table_path = '../CQ_Annotations1xor4x.csv'
-    # data_table_path = '../CQ_Annotations.csv'
+
+    data_path='..'
+    data_table_path = '../bBoxAnnotations_All_patients2.csv'
+    
     
     model_name='model'
     
-    train_batch_size = 1
-    test_batch_size = 1
+    train_batch_size = 16
+    test_batch_size = 16
     
     
     # lr_steps = np.cumsum([50,20,10])
-    lr_steps = np.cumsum([300,50,50])
+    lr_steps = np.cumsum([30,10,5])
     gamma = 0.1
     init_lr = 0.001
     max_epochs = lr_steps[-1]
     
     # net = Small_resnet3D_noheatmap
-    net = Small_resnet3D
+    net = Resnet_2D_heatmap
 
     
     SPLIT_RATIO = [7,3]

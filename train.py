@@ -8,14 +8,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import pickle
-import pandas as pd
 import json
+
 
 
 from config import Config
 from my_dataset import MyDataset
 from utils.log import Log
-from small_resnet3D import Small_resnet3D
 from utils.losses import wce
 from utils.log import get_lr
 from read_filenames_and_labels import read_filenames_and_labels
@@ -33,16 +32,12 @@ if __name__ == '__main__':
     
     
     file_names_train,labels_train,file_names_valid,labels_valid = read_filenames_and_labels()
-    
-    
+
     lbl_counts = np.sum(labels_train,axis=0)
     num_files = len(file_names_train)
     
     w_positive=num_files/lbl_counts
     w_negative=num_files/(num_files-lbl_counts)
-    
-    # w_positive = np.array([1])##############
-    # w_negative = np.array([1])
     
     
     w_positive_tensor=torch.from_numpy(w_positive.astype(np.float32)).to(device)
@@ -56,7 +51,6 @@ if __name__ == '__main__':
     validLoader= data.DataLoader(loader, batch_size=Config.test_batch_size, num_workers=Config.test_num_workers, shuffle=False,drop_last=False)
     
     
-    
     model = Config.net(input_size=3, output_size=len(w_positive)).to(device)
     
      
@@ -68,7 +62,10 @@ if __name__ == '__main__':
     for epoch_num in range(Config.max_epochs):
         
         model.train()
+        N = len(trainloader)
         for it, (batch,lbls) in enumerate(trainloader):
+            if (it % 1) == 0:
+                print(str(it) + ' / ' + str(N))
                        
             batch=batch.to(device)            
             lbls=lbls.to(device)
@@ -95,7 +92,10 @@ if __name__ == '__main__':
             
         model.eval()   
         with torch.no_grad():
+            N = len(validLoader)
             for it, (batch,lbls) in enumerate(validLoader): 
+                if (it % 1) == 0:
+                    print(str(it) + ' / ' + str(N))
                 
                 batch=batch.to(device)
                 lbls=lbls.to(device)
