@@ -72,7 +72,7 @@ class Small_resnet3D(nn.Module):
         
         
         for i, m in enumerate(self.modules()):
-            if isinstance(m, nn.Conv2d):
+            if isinstance(m, nn.Conv3d):
                 init.xavier_normal_(m.weight)
                 init.constant_(m.bias, 0)
         
