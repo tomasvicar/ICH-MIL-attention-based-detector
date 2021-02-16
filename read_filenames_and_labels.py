@@ -15,7 +15,7 @@ def read_filenames_and_labels():
     Pat_ind = df['Pat_ind'].to_numpy()
     
     
-    file_names = [Config.data_path + os.sep + file_name.replace('\','/') for file_name in file_names]
+    file_names = [Config.data_path + os.sep + file_name.replace('\\','/') for file_name in file_names]
         
     
     labels = [np.array(isinstance(label, str)).astype(np.float32).reshape(-1)  for label in BBs]
