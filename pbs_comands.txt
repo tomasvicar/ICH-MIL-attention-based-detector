@@ -1,0 +1,4 @@
+qsub run_script_python_train.pbs
+qdel xxxx.gecko
+qstat
+
