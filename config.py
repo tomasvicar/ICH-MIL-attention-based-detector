@@ -37,13 +37,13 @@ class Config:
     SPLIT_RATIO = [8,2]
     
     ###### Augmentation parameters
-    max_multiplier  = 0.05   # multiply augmentation 
-    max_add  = 15          # Add augmentation
-    scale_range = 0.05
-    shears_range = 0.03
+    max_multiplier  = 0.1   # multiply augmentation 
+    max_add  = 20          # Add augmentation
+    scale_range = 0.1
+    shears_range = 0.05
     tilt_range = 0
-    translation_range = 30
-    rotation_range = 15
+    translation_range = 50
+    rotation_range = 30
 
 
 

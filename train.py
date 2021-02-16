@@ -117,8 +117,14 @@ if __name__ == '__main__':
         
                 log.append_valid([loss,acc])
         
-        
 
+        log.save_and_reset()
+    
+        info= str(epoch_num) + '_' + str(get_lr(optimizer)) + '_train_'  + str(log.train_logs['acc'][-1]) + '_valid_' + str(log.valid_logs['acc'][-1]) 
+    
+        print(info)
+        
+        
         batch = batch.detach().cpu().numpy()
         heatmap = heatmap.detach().cpu().numpy()
         
@@ -136,15 +142,13 @@ if __name__ == '__main__':
             
             plt.subplot(122)
             plt.imshow(heatmap_tmp)
+            plt.savefig(info + '_example_image' + str(k) + '.png')
             plt.show()
             
         
         
-        log.save_and_reset()
-    
-        info= str(epoch_num) + '_' + str(get_lr(optimizer)) + '_train_'  + str(log.train_logs['acc'][-1]) + '_valid_' + str(log.valid_logs['acc'][-1]) 
-    
-        print(info)
+        
+        
         
         
         scheduler.step()
