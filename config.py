@@ -9,8 +9,8 @@ class Config:
     # train_num_workers=2
     # test_num_workers=2
     
-    train_num_workers=6
-    test_num_workers=2
+    train_num_workers = 6
+    test_num_workers = 6
     
     
 
@@ -25,7 +25,7 @@ class Config:
     
     
     # lr_steps = np.cumsum([50,20,10])
-    lr_steps = np.cumsum([50,20,10])
+    lr_steps = np.cumsum([40,10,5])
     gamma = 0.1
     init_lr = 0.001
     max_epochs = lr_steps[-1]
@@ -34,16 +34,16 @@ class Config:
     net = Resnet_2D_heatmap
 
     
-    SPLIT_RATIO = [7,3]
+    SPLIT_RATIO = [8,2]
     
     ###### Augmentation parameters
     max_multiplier  = 0.05   # multiply augmentation 
-    max_add  = 10/1000          # Add augmentation
-    scale_range = 0.1
-    shears_range = 0.05
+    max_add  = 15          # Add augmentation
+    scale_range = 0.05
+    shears_range = 0.03
     tilt_range = 0
-    translation_range = 50
-    rotation_range = 20
+    translation_range = 30
+    rotation_range = 15
 
 
 

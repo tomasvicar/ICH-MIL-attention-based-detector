@@ -48,24 +48,24 @@ class MyDataset(torch.utils.data.Dataset):
     @staticmethod
     def data_augmentation(data):
         
-        ## multiply augmentation
-        max_multiplier  = Config.max_multiplier        
-        multiplier = 1 + random.random() * max_multiplier
-        if random.random()>0.5:
-            multiplier = 1 / multiplier
+        # ## multiply augmentation
+        # max_multiplier  = Config.max_multiplier        
+        # multiplier = 1 + random.random() * max_multiplier
+        # if random.random()>0.5:
+        #     multiplier = 1 / multiplier
             
-        data = data * multiplier
+        # data = data * multiplier
         
         
-        ## add augmentation
-        max_add = Config.max_add
-        add_value = max_add -2*random.random() 
-        data = data + add_value
+        # ## add augmentation
+        # max_add = Config.max_add
+        # add_value = max_add -2*random.random() 
+        # data = data + add_value
         
-        ## afine transformation
-        md = MatrixDeformer(scale_range=Config.scale_range,shears_range=Config.shears_range,tilt_range=Config.tilt_range,
-                            translation_range=Config.translation_range,rotation_range=Config.rotation_range)
-        data = md.augment(data)
+        # ## afine transformation
+        # md = MatrixDeformer(scale_range=Config.scale_range,shears_range=Config.shears_range,tilt_range=Config.tilt_range,
+        #                     translation_range=Config.translation_range,rotation_range=Config.rotation_range)
+        # data = md.augment(data)
         
         
         

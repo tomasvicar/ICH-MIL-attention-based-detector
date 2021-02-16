@@ -121,7 +121,6 @@ if __name__ == '__main__':
 
         batch = batch.detach().cpu().numpy()
         heatmap = heatmap.detach().cpu().numpy()
-        lbls = lbls.detach().cpu().numpy()
         
         for k in range(batch.shape[0]):
             res_tmp = res[k,0]
@@ -142,7 +141,6 @@ if __name__ == '__main__':
         
         
         log.save_and_reset()
-    
     
         info= str(epoch_num) + '_' + str(get_lr(optimizer)) + '_train_'  + str(log.train_logs['acc'][-1]) + '_valid_' + str(log.valid_logs['acc'][-1]) 
     
