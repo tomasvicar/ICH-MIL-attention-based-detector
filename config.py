@@ -9,8 +9,8 @@ class Config:
     # train_num_workers=2
     # test_num_workers=2
     
-    train_num_workers = 6
-    test_num_workers = 6
+    train_num_workers = 10
+    test_num_workers = 10
     
     
 
