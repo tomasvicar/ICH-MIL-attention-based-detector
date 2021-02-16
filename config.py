@@ -9,8 +9,8 @@ class Config:
     # train_num_workers=2
     # test_num_workers=2
     
-    train_num_workers = 10
-    test_num_workers = 10
+    train_num_workers = 12
+    test_num_workers = 12
     
     
 
@@ -20,8 +20,8 @@ class Config:
     
     model_name='model'
     
-    train_batch_size = 32
-    test_batch_size = 32
+    train_batch_size = 64
+    test_batch_size = 64
     
     
     # lr_steps = np.cumsum([50,20,10])
