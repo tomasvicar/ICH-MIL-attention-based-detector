@@ -12,20 +12,24 @@ class Config:
     train_num_workers = 12
     test_num_workers = 12
     
-    
+    # train_num_workers = 0
+    # test_num_workers = 0
 
-    data_path='..'
-    data_table_path = '../bBoxAnnotations_All_patients2.csv'
+    # data_path='../RSNA_sub_sample'
+    # data_table_path = '../label_table_dicomcol_merge_sample.csv'
+    
+    data_path='../../../obrazari_shared/RSNA_sub'
+    data_table_path = '../../../obrazari_shared/label_table_dicomcol_merge.csv'
     
     
     model_name='model'
     
-    train_batch_size = 64
-    test_batch_size = 64
+    train_batch_size = 128
+    test_batch_size = 128
     
     
     # lr_steps = np.cumsum([50,20,10])
-    lr_steps = np.cumsum([40,10,5])
+    lr_steps = np.cumsum([20,5,5])
     gamma = 0.1
     init_lr = 0.001
     max_epochs = lr_steps[-1]
@@ -34,10 +38,12 @@ class Config:
     net = Resnet_2D_heatmap
 
     
-    SPLIT_RATIO = [8,2]
+    SPLIT_RATIO = [97,3]
+    plots_in_epoch = 5
+    
     
     ###### Augmentation parameters
-    max_multiplier  = 0.1   # multiply augmentation 
+    max_multiplier  = 0.02   # multiply augmentation 
     max_add  = 20          # Add augmentation
     scale_range = 0.1
     shears_range = 0.05

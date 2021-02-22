@@ -15,7 +15,7 @@ class MyDataset(torch.utils.data.Dataset):
     @staticmethod
     def data_tranform(data):
         
-        data = data + 1024
+        data = data
         data[data<-500] = 0
         data = data.astype(np.float32).copy()
         

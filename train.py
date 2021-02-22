@@ -41,7 +41,9 @@ if __name__ == '__main__':
     w_positive=num_files/lbl_counts
     w_negative=num_files/(num_files-lbl_counts)
     
-    
+    w_positive = np.array(w_positive).reshape(-1)
+    w_negative = np.array(w_negative).reshape(-1)
+
     w_positive_tensor=torch.from_numpy(w_positive.astype(np.float32)).to(device)
     w_negative_tensor=torch.from_numpy(w_negative.astype(np.float32)).to(device)
     
@@ -63,12 +65,11 @@ if __name__ == '__main__':
     
     for epoch_num in range(Config.max_epochs):
         
-        model.train()
+        
         N = len(trainloader)
         for it, (batch,lbls) in enumerate(trainloader):
-            if (it % 500) == 0:
-                print('train  ' + str(it) + ' / ' + str(N))
-                       
+                   
+            model.train()
             batch=batch.to(device)            
             lbls=lbls.to(device)
             
@@ -91,65 +92,75 @@ if __name__ == '__main__':
             log.append_train([loss,acc])
             
             
+            if (it % int(N/Config.plots_in_epoch) == 0) and (it != 0):
+                model.eval()   
+                with torch.no_grad():
+                    for itt, (batch,lbls) in enumerate(validLoader): 
+
+                        batch=batch.to(device)
+                        lbls=lbls.to(device)
+                        
+                        res,heatmap = model(batch)
+                        
+                        res = torch.sigmoid(res)
+                        loss = wce(res,lbls,w_positive_tensor,w_negative_tensor)
+                        
+                        
+                        loss=loss.detach().cpu().numpy()
+                        res=res.detach().cpu().numpy()
+                        lbls=lbls.detach().cpu().numpy()
             
-        model.eval()   
-        with torch.no_grad():
-            N = len(validLoader)
-            for it, (batch,lbls) in enumerate(validLoader): 
-                if (it % 500) == 0:
-                    print('valid  ' +  str(it) + ' / ' + str(N))
+                        acc = np.mean(((res>0.5)==(lbls>0.5)).astype(np.float32))
+                        
                 
-                batch=batch.to(device)
-                lbls=lbls.to(device)
-                
-                res,heatmap = model(batch)
-                
-                res = torch.sigmoid(res)
-                loss = wce(res,lbls,w_positive_tensor,w_negative_tensor)
-                
-                
-                loss=loss.detach().cpu().numpy()
-                res=res.detach().cpu().numpy()
-                lbls=lbls.detach().cpu().numpy()
-    
-                acc = np.mean(((res>0.5)==(lbls>0.5)).astype(np.float32))
-                
-        
-                log.append_valid([loss,acc])
+                        log.append_valid([loss,acc])
         
 
-        log.save_and_reset()
-    
+                log.save_and_reset()
+            
+                info= str(epoch_num) + '_' + str(it) + '_' + str(get_lr(optimizer)) + '_train_'  + str(log.train_logs['acc'][-1]) + '_valid_' + str(log.valid_logs['acc'][-1]) 
+            
+                print(info)
+                
+                tmp_file_name= Config.tmp_save_dir + os.sep +Config.model_name + info
+                log.plot(save_name = tmp_file_name +  '_plot.png')
+                
+                
+                batch = batch.detach().cpu().numpy()
+                heatmap = heatmap.detach().cpu().numpy()
+                
+                for k in range(batch.shape[0]):
+                    res_tmp = res[k,0]
+                    lbl_tmp = lbls[k,0]
+                    img_tmp = batch[k,1,:,:]
+                    heatmap_tmp = heatmap[k,0,:,:]
+                    heatmap_tmp = resize(heatmap_tmp,img_tmp.shape)
+                    
+                    plt.figure(figsize=[6.4*3, 4.8*3])
+                    plt.subplot(121)
+                    plt.imshow(img_tmp)
+                    plt.title(str(k) + '  gt=' + str(lbl_tmp) + '  res=' + str(res_tmp))
+                    
+                    plt.subplot(122)
+                    plt.imshow(heatmap_tmp)
+                    plt.savefig(Config.tmp_save_dir + os.sep +Config.model_name + info + '_example_image' + str(k) + '.png')
+                    plt.show()
+                    plt.close()
+        
+        
+        
+        
+        
+        
+        
+        
+
+        
+        
+        
         info= str(epoch_num) + '_' + str(get_lr(optimizer)) + '_train_'  + str(log.train_logs['acc'][-1]) + '_valid_' + str(log.valid_logs['acc'][-1]) 
-    
+        
         print(info)
-        
-        
-        batch = batch.detach().cpu().numpy()
-        heatmap = heatmap.detach().cpu().numpy()
-        
-        for k in range(batch.shape[0]):
-            res_tmp = res[k,0]
-            lbl_tmp = lbls[k,0]
-            img_tmp = batch[k,1,:,:]
-            heatmap_tmp = heatmap[k,0,:,:]
-            heatmap_tmp = resize(heatmap_tmp,img_tmp.shape)
-            
-            plt.figure(figsize=[6.4*3, 4.8*3])
-            plt.subplot(121)
-            plt.imshow(img_tmp)
-            plt.title(str(k) + '  gt=' + str(lbl_tmp) + '  res=' + str(res_tmp))
-            
-            plt.subplot(122)
-            plt.imshow(heatmap_tmp)
-            plt.savefig(info + '_example_image' + str(k) + '.png')
-            plt.show()
-            
-        
-        blbost
-        
-        
-        
         
         scheduler.step()
 
@@ -158,11 +169,7 @@ if __name__ == '__main__':
         tmp_file_name= Config.tmp_save_dir + os.sep +Config.model_name + info
         torch.save(model.state_dict(),tmp_file_name +  '_model.pt')
         
-        
-        log.plot(save_name = tmp_file_name +  '_plot.png')
-        
-        
-        
+
         with open(tmp_file_name +  '_log.pkl', 'wb') as f:
             pickle.dump(log, f)
             
