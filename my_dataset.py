@@ -2,9 +2,9 @@ import numpy as np
 import torch
 import SimpleITK as sitk
 import random
+from datetime import datetime
+
 from config import Config
-
-
 from utils.load_dicom_slice import load_dicom_slice
 from utils.get_dicom_slice_size import get_dicom_slice_size
 from utils.matrixDeformer import MatrixDeformer
@@ -106,8 +106,19 @@ class MyDataset(torch.utils.data.Dataset):
         lbl = self.labels[index]
         
 
-        img = load_dicom_slice(file_name)
+        try:
+            img = load_dicom_slice(file_name)
+        except:
+            img = np.zeros((256,256))
+            with open('error_read_' + datetime.now().strftime("%m_%d_%Y_%H_%M_%S_%f") + '.txt', 'w') as f:
+                f.write(file_name)
         
+        
+        if (img.shape[0]!=256) or (img.shape[1]!=256):
+            img = np.zeros((256,256))
+            with open('error_size_' + datetime.now().strftime("%m_%d_%Y_%H_%M_%S_%f") + '.txt', 'w') as f:
+                f.write(file_name)
+            
         
         img = img.astype(np.float32)
         
