@@ -15,8 +15,8 @@ class Config:
     train_num_workers = 0
     test_num_workers = 0
 
-    data_path='../RSNA_sub_sample'
-    data_table_path = '../label_table_dicomcol_merge_sample.csv'
+    data_path=r'D:\vicar\kuba_embc2021'
+    data_table_path = '../bBoxAnnotations_All_patients2.csv'
     
     # data_path='../../../obrazari_shared/RSNA_sub'
     # data_table_path = '../../../obrazari_shared/label_table_dicomcol_merge.csv'

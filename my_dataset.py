@@ -15,7 +15,7 @@ class MyDataset(torch.utils.data.Dataset):
     @staticmethod
     def data_tranform(data):
         
-        data = data
+        data = data + 1024
         data[data<-500] = 0
         data = data.astype(np.float32).copy()
         
@@ -106,19 +106,9 @@ class MyDataset(torch.utils.data.Dataset):
         lbl = self.labels[index]
         
 
-        try:
-            img = load_dicom_slice(file_name)
-        except:
-            img = np.zeros((256,256))
-            with open('error_read_' + datetime.now().strftime("%m_%d_%Y_%H_%M_%S_%f") + '.txt', 'w') as f:
-                f.write(file_name)
-        
-        
-        if (img.shape[0]!=256) or (img.shape[1]!=256):
-            img = np.zeros((256,256))
-            with open('error_size_' + datetime.now().strftime("%m_%d_%Y_%H_%M_%S_%f") + '.txt', 'w') as f:
-                f.write(file_name)
-            
+
+        img = load_dicom_slice(file_name)
+
         
         img = img.astype(np.float32)
         
