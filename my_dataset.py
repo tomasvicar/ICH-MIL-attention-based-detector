@@ -3,6 +3,8 @@ import torch
 import SimpleITK as sitk
 import random
 from datetime import datetime
+from scipy.ndimage import zoom
+from skimage.transform import resize
 
 from config import Config
 from utils.load_dicom_slice import load_dicom_slice
@@ -111,6 +113,8 @@ class MyDataset(torch.utils.data.Dataset):
 
         
         img = img.astype(np.float32)
+        # img = zoom(img,0.5)
+        img = resize(img,(256,256), order=0, anti_aliasing=(True))
         
         if self.split == 'train':
             img = self.data_augmentation(img)
