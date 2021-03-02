@@ -9,23 +9,26 @@ class Config:
     # train_num_workers=2
     # test_num_workers=2
     
-    # train_num_workers = 12
-    # test_num_workers = 12
+    train_num_workers = 12
+    test_num_workers = 12
     
-    train_num_workers = 0
-    test_num_workers = 0
+    # train_num_workers = 0
+    # test_num_workers = 0
 
-    data_path='../RSNA_sub_sample'
-    data_table_path = '../label_table_dicomcol_merge_sample.csv'
+    # data_path='../RSNA_sub_sample'
+    # data_table_path = '../label_table_dicomcol_merge_sample.csv'
     
-    # data_path='../../../obrazari_shared/RSNA_sub'
-    # data_table_path = '../../../obrazari_shared/label_table_dicomcol_merge.csv'
+    data_path='../../../obrazari_shared/RSNA_sub'
+    data_table_path = '../../../obrazari_shared/label_table_dicomcol_merge.csv'
     
     
     model_name='model'
     
     train_batch_size = 128
     test_batch_size = 128
+    
+    # train_batch_size = 64
+    # test_batch_size = 64
     
     
     # lr_steps = np.cumsum([50,20,10])
@@ -38,11 +41,11 @@ class Config:
     net = Resnet_2D_heatmap
 
     
-    # SPLIT_RATIO = [97,3]
-    # plots_in_epoch = 5
+    SPLIT_RATIO = [97,3]
+    plots_in_epoch = 5
     
-    SPLIT_RATIO = [8,2]
-    plots_in_epoch = 4
+    # SPLIT_RATIO = [8,2]
+    # plots_in_epoch = 4
     
     
     ###### Augmentation parameters
@@ -53,6 +56,11 @@ class Config:
     tilt_range = 0
     translation_range = 50
     rotation_range = 30
+    blur_sharp_range = [-0.5, 0.5]
+    
+    individual_p = 0.90
+    global_p = 0.95
+    
 
 
 

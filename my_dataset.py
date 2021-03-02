@@ -8,6 +8,9 @@ from config import Config
 from utils.load_dicom_slice import load_dicom_slice
 from utils.get_dicom_slice_size import get_dicom_slice_size
 from utils.matrixDeformer import MatrixDeformer
+from utils.blurSharpAugmenter import BlurSharpAugmenter
+
+
 
 
 class MyDataset(torch.utils.data.Dataset):
@@ -48,25 +51,33 @@ class MyDataset(torch.utils.data.Dataset):
     @staticmethod
     def data_augmentation(data):
         
-        ## multiply augmentation
-        max_multiplier  = Config.max_multiplier        
-        multiplier = 1 + random.random() * max_multiplier
-        if random.random()>0.5:
-            multiplier = 1 / multiplier
+        if random.random() < Config.global_p:
+            ## multiply augmentation
+            if random.random() < Config.individual_p:
+                max_multiplier  = Config.max_multiplier        
+                multiplier = 1 + random.random() * max_multiplier
+                if random.random()>0.5:
+                    multiplier = 1 / multiplier
+                    
+                data = data * multiplier
             
-        data = data * multiplier
-        
-        
-        ## add augmentation
-        max_add = Config.max_add
-        add_value = max_add - 2 * max_add * random.random() 
-        data = data + add_value
-        
-        ## afine transformation
-        md = MatrixDeformer(scale_range=Config.scale_range,shears_range=Config.shears_range,tilt_range=Config.tilt_range,
-                            translation_range=Config.translation_range,rotation_range=Config.rotation_range)
-        data = md.augment(data)
-        
+            
+            ## add augmentation
+            if random.random() < Config.individual_p:
+                max_add = Config.max_add
+                add_value = max_add - 2 * max_add * random.random() 
+                data = data + add_value
+            
+            
+            ## afine transformation
+            if random.random() < Config.individual_p:
+                md = MatrixDeformer(scale_range=Config.scale_range,shears_range=Config.shears_range,tilt_range=Config.tilt_range,
+                                    translation_range=Config.translation_range,rotation_range=Config.rotation_range)
+                data = md.augment(data)
+            
+            if random.random() < Config.individual_p:
+                bs = BlurSharpAugmenter(Config.blur_sharp_range)
+                data = bs.augment(data)
         
         
         if random.random() > 0.5:

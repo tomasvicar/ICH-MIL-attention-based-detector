@@ -5,6 +5,43 @@ import numpy as np
 from torch.nn import init
 import matplotlib.pyplot as plt
 
+
+
+class myAttention(nn.Module):
+    
+    def __init__(self,in_size, out_size):
+        super().__init__()
+        
+        self.conv_tanh = nn.Conv2d(in_size, in_size, 1)
+        self.conv_sigm = nn.Conv2d(in_size, in_size, 1)
+        self.conv_w = nn.Conv2d(in_size, 1, 1)
+    
+    def forward(self, inputs):
+        
+        tanh = torch.tanh(self.conv_tanh(inputs))
+        
+        sigm = torch.sigmoid(self.conv_sigm(inputs))
+        
+        z = self.conv_w(tanh * sigm) 
+        
+        shape1 = list(z.size())
+        z = z.view(shape1[0],shape1[1],-1)
+        
+        shape2 = list(inputs.size())
+        inputs = inputs.view(shape2[0],shape2[1],-1)
+        
+        a = torch.softmax(z,dim=2)
+        
+        output = torch.sum(a * inputs,2)
+        
+        a = torch.reshape(a,shape1)
+        
+        return output, a
+        
+        
+    
+    
+
 class myConv(nn.Module):
     def __init__(self, in_size, out_size,filter_size=3,stride=1,pad=None,do_batch=1,dov=0):
         super().__init__()
@@ -66,9 +103,12 @@ class Resnet_2D_heatmap(nn.Module):
                 
                 self.layers.append(myConv( int(lvl1_size*(lvl_num+1)), int(lvl1_size*(lvl_num+1))))
             
-        self.conv_final = nn.Conv2d(int(lvl1_size * (self.levels)),output_size,3 ,1, 1)
+            
+        self.attention = myAttention(int(lvl1_size * (self.levels)),int(lvl1_size * (self.levels)))
         
-        # self.fc=nn.Linear(int(self.lvl1_size*self.levels), output_size)
+        # self.conv_final = nn.Conv2d(int(lvl1_size * (self.levels)),output_size,3 ,1, 1)
+        
+        self.fc=nn.Linear(int(self.lvl1_size*self.levels), output_size)
         
         
         for i, m in enumerate(self.modules()):
@@ -105,12 +145,15 @@ class Resnet_2D_heatmap(nn.Module):
             x=F.max_pool2d(x, kernel_size = 2,  stride = 2)
             
         
-        x = self.conv_final(x)
-        heatmap = x
-        x  = F.adaptive_max_pool2d(x,1)
+        # x = self.conv_final(x)
+        x,heatmap  = self.attention(x)
+        # heatmap = x
+        
+        # x  = F.adaptive_max_pool2d(x,1)
+        # x  = self.attention(x)
         
         shape=list(x.size())
         x=x.view(shape[0],-1)
-        # x=self.fc(x)
+        x=self.fc(x)
         
         return x,heatmap
