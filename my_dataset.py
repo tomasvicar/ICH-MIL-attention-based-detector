@@ -121,14 +121,14 @@ class MyDataset(torch.utils.data.Dataset):
             img = load_dicom_slice(file_name)
         except:
             img = np.zeros((256,256))
-            with open('error_read_' + datetime.now().strftime("%m_%d_%Y_%H_%M_%S_%f") + '.txt', 'w') as f:
-                f.write(file_name)
+            # with open('error_read_' + datetime.now().strftime("%m_%d_%Y_%H_%M_%S_%f") + '.txt', 'w') as f:
+            #     f.write(file_name)
         
         
         if (img.shape[0]!=256) or (img.shape[1]!=256):
             img = np.zeros((256,256))
-            with open('error_size_' + datetime.now().strftime("%m_%d_%Y_%H_%M_%S_%f") + '.txt', 'w') as f:
-                f.write(file_name)
+            # with open('error_size_' + datetime.now().strftime("%m_%d_%Y_%H_%M_%S_%f") + '.txt', 'w') as f:
+            #     f.write(file_name)
             
         
         img = img.astype(np.float32)
