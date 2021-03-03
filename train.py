@@ -73,7 +73,7 @@ if __name__ == '__main__':
             batch=batch.to(device)            
             lbls=lbls.to(device)
             
-            res,heatmap = model(batch)
+            res,res2,heatmap,heatmap2 = model(batch)
             
             res = torch.sigmoid(res)
             loss = wce(res,lbls,w_positive_tensor,w_negative_tensor)
@@ -100,7 +100,7 @@ if __name__ == '__main__':
                         batch=batch.to(device)
                         lbls=lbls.to(device)
                         
-                        res,heatmap = model(batch)
+                        res,res2,heatmap,heatmap2 = model(batch)
                         
                         res = torch.sigmoid(res)
                         loss = wce(res,lbls,w_positive_tensor,w_negative_tensor)
@@ -128,6 +128,7 @@ if __name__ == '__main__':
                 
                 batch = batch.detach().cpu().numpy()
                 heatmap = heatmap.detach().cpu().numpy()
+                heatmap2 = heatmap2.detach().cpu().numpy()
                 
                 for k in range(batch.shape[0]):
                     res_tmp = res[k,0]
@@ -136,13 +137,21 @@ if __name__ == '__main__':
                     heatmap_tmp = heatmap[k,0,:,:]
                     heatmap_tmp = resize(heatmap_tmp,img_tmp.shape)
                     
+                    heatmap2_tmp = heatmap2[k,0,:,:]
+                    heatmap2_tmp = resize(heatmap2_tmp,img_tmp.shape)
+                    
+                    
                     plt.figure(figsize=[6.4*3, 4.8*3])
-                    plt.subplot(121)
+                    plt.subplot(131)
                     plt.imshow(img_tmp)
                     plt.title(str(k) + '  gt=' + str(lbl_tmp) + '  res=' + str(res_tmp))
                     
-                    plt.subplot(122)
+                    plt.subplot(132)
                     plt.imshow(heatmap_tmp)
+                    
+                    plt.subplot(133)
+                    plt.imshow(heatmap2_tmp)
+                    
                     plt.savefig(Config.tmp_save_dir + os.sep +Config.model_name + info + '_example_image' + str(k) + '.png')
                     plt.show()
                     plt.close()
