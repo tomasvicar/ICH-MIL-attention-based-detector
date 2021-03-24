@@ -26,7 +26,7 @@ from read_filenames_and_labels import read_filenames_and_labels
 
 device = torch.device("cuda:0")
 
-model_name = r"D:\nemcek\EMBC2021\rsna_network\model29_1e-05_train_0.9217379_valid_0.9087358"
+model_name = r"D:\nemcek\EMBC2021\rsna_network\model29_1e-05_train_0.9085252_valid_0.9016779"
 
 with open(model_name + 'filenames_and_lbls.json', 'r') as f:
     filenames_and_lbls = json.load(f)
@@ -82,13 +82,18 @@ with torch.no_grad():
         
 
         log.append_valid([loss,acc])
-
+        
+        if it > 0:
+            break
 
 log.save_and_reset()
 info= 'cq_' + str(log.valid_logs['acc'][-1]) 
 
 batch = batch.detach().cpu().numpy()
 heatmap = heatmap.detach().cpu().numpy()
+
+
+saveImHMpath = r"D:\nemcek\EMBC2021\test_Imgs_Heatmaps_detector"
 
 for k in range(batch.shape[0]):
     res_tmp = res[k,0]
@@ -101,10 +106,13 @@ for k in range(batch.shape[0]):
     plt.subplot(121)
     plt.imshow(img_tmp)
     plt.title(str(k) + '  gt=' + str(lbl_tmp) + '  res=' + str(res_tmp))
-    
+        
     plt.subplot(122)
     plt.imshow(heatmap_tmp)
     plt.savefig(Config.tmp_save_dir + os.sep +Config.model_name + info + '_example_image' + str(k) + '.png')
     plt.show()
     plt.close()
 
+    if lbl_tmp == 1 and res_tmp > 0.5:
+        np.save(saveImHMpath + '\img_' + str(k), img_tmp )
+        np.save(saveImHMpath + '\hm_' + str(k), heatmap_tmp )
