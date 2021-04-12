@@ -27,6 +27,8 @@ class Config:
     train_batch_size = 128
     test_batch_size = 128
     
+    pred_batch_size = 1 # Pre vytvaranie heatmap
+    
     
     # lr_steps = np.cumsum([50,20,10])
     lr_steps = np.cumsum([20,5,5])
@@ -40,6 +42,8 @@ class Config:
     
     # SPLIT_RATIO = [97,3]
     # plots_in_epoch = 5
+    
+    split_valid_test = [2,3]
     
     SPLIT_RATIO = [8,2]
     plots_in_epoch = 4

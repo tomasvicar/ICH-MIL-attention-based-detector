@@ -26,7 +26,7 @@ from read_filenames_and_labels import read_filenames_and_labels
 
 device = torch.device("cuda:0")
 
-model_name = r"D:\nemcek\EMBC2021\rsna_network\model29_1e-05_train_0.9085252_valid_0.9016779"
+model_name = r"D:\nemcek\EMBC2021\rsna_network\model29_1e-05_train_0.9217379_valid_0.9087358"
 
 with open(model_name + 'filenames_and_lbls.json', 'r') as f:
     filenames_and_lbls = json.load(f)
@@ -111,6 +111,7 @@ for k in range(batch.shape[0]):
     plt.imshow(heatmap_tmp)
     plt.savefig(Config.tmp_save_dir + os.sep +Config.model_name + info + '_example_image' + str(k) + '.png')
     plt.show()
+    
     plt.close()
 
     if lbl_tmp == 1 and res_tmp > 0.5:

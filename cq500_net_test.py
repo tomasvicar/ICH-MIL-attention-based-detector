@@ -106,5 +106,5 @@ for k in range(batch.shape[0]):
     plt.imshow(heatmap_tmp)
     plt.savefig(Config.tmp_save_dir + os.sep +Config.model_name + info + '_example_image' + str(k) + '.png')
     plt.show()
-    plt.close()
+    # plt.close()
 
