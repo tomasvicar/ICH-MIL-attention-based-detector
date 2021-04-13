@@ -4,7 +4,7 @@ from resnet_2D_heatmap import Resnet_2D_heatmap
 class Config:
     
     tmp_save_dir='../models_python'
-    
+    tmp_save_results = '../detect_results'
 
     # train_num_workers=2
     # test_num_workers=2

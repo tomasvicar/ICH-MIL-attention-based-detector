@@ -75,6 +75,39 @@ class Dice_metrik():
         return TP, FP, FN
     
     
+    def contingencyTab_bboxIndividual(self):
+        
+        TP = 0
+        FP = 0
+        FN = 0
+        bb = self.BBs
+        
+        
+        ctrl_points = np.zeros((1,self.points.shape[0])) 
+       
+        if self.BBs.shape[1] > 0:
+            for ii in range(self.BBs.shape[1]):
+                BBarea = np.zeros(self.heatmap.shape)
+                BBarea[ int(bb[0,ii,1]):int(bb[0,ii,1]+bb[0,ii,3]),
+                            int(bb[0,ii,0]):int(bb[0,ii,0]+bb[0,ii,2]) ] = np.ones((int(bb[0,ii,3]),int(bb[0,ii,2])))
+                any_point = 0
+                if self.points.shape[0] > 0 :                                     
+                    for it in range(self.points.shape[0]):
+                        p = self.points[it]
+                        if BBarea[int(p[0]),int(p[1])] == 1:
+                            TP = TP + 1
+                            any_point += 1
+                            ctrl_points[0,it] = 1
+                if any_point > 0:
+                    TP += 1
+                else:
+                    FN += 1     
+        
+        FP = self.points.shape[0] - int(np.sum(ctrl_points, axis=1).astype(int))
+                     
+        return TP, FP, FN
+    
+    
     def dice_metrik(self, TP, FP, FN):
         dice = 2*TP / (2*TP + FP + FN)
         return dice
