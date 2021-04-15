@@ -1,6 +1,4 @@
 import numpy as np
-import torch
-from torch.utils import data
 import os
 from scipy.ndimage import zoom
 from scipy.ndimage.filters import convolve
@@ -95,7 +93,6 @@ class Dice_metrik():
                     for it in range(self.points.shape[0]):
                         p = self.points[it]
                         if BBarea[int(p[0]),int(p[1])] == 1:
-                            TP = TP + 1
                             any_point += 1
                             ctrl_points[0,it] = 1
                 if any_point > 0:
