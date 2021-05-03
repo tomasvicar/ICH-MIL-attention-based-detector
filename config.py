@@ -4,7 +4,7 @@ from resnet_2D_heatmap import Resnet_2D_heatmap
 class Config:
     
     tmp_save_dir='../models_python'
-    
+    tmp_save_results = '../detect_results'
 
     # train_num_workers=2
     # test_num_workers=2
@@ -15,11 +15,12 @@ class Config:
     # train_num_workers = 0
     # test_num_workers = 0
 
-    # data_path='../RSNA_sub_sample'
-    # data_table_path = '../label_table_dicomcol_merge_sample.csv'
+
+    data_path=r'D:\vicar\kuba_embc2021'
+    data_table_path = '../bBoxAnnotations_All_patients2.csv'
     
-    data_path='../../../obrazari_shared/RSNA_sub'
-    data_table_path = '../../../obrazari_shared/label_table_dicomcol_merge.csv'
+    # data_path='../../../obrazari_shared/RSNA_sub'
+    # data_table_path = '../../../obrazari_shared/label_table_dicomcol_merge.csv'
     
     
     model_name='model'
@@ -27,8 +28,9 @@ class Config:
     train_batch_size = 128
     test_batch_size = 128
     
-    # train_batch_size = 64
-    # test_batch_size = 64
+
+    pred_batch_size = 1 # Pre vytvaranie heatmap
+
     
     
     # lr_steps = np.cumsum([50,20,10])
@@ -44,9 +46,12 @@ class Config:
     SPLIT_RATIO = [97,3]
     plots_in_epoch = 5
     
-    # SPLIT_RATIO = [8,2]
-    # plots_in_epoch = 4
+
+    split_valid_test = [2,3]
     
+    SPLIT_RATIO = [8,2]
+    plots_in_epoch = 4
+
     
     ###### Augmentation parameters
     max_multiplier  = 0.02   # multiply augmentation 
