@@ -50,7 +50,7 @@ def get_conting_value(hm_name, im_name, bb_name, min_h, min_d, thr):
     if tp>0 or fp>0 or fn>0:
         plt.figure()
         plt.imshow(im, cmap='gray')
-        plt.plot(hemo_coords[:,1],hemo_coords[:,0],'*r')
+        plt.plot(hemo_coords[:,1],hemo_coords[:,0],'xr',markersize=12)
         plt.title('TP=' + str(tp) + '  FP=' + str(fp) + '  FN=' + str(fn))
         if bb_sz[1] > 0:
             ax = plt.gca()
@@ -58,19 +58,23 @@ def get_conting_value(hm_name, im_name, bb_name, min_h, min_d, thr):
             for ii in range(bb_sz[1]):
                 rect = patches.Rectangle((bb[0,ii,0],bb[0,ii,1]),
                                           bb[0,ii,2],bb[0,ii,3],
-                                          linewidth=1,edgecolor='r',facecolor='none')
+                                          linewidth=2,edgecolor='r',facecolor='none')
                 
                
                 ax.add_patch(rect)    
             MyDetector = Detector(hm, min_h, min_d, thr)
             hemo_coords = MyDetector.detect()    
-            plt.plot(hemo_coords[:,1],hemo_coords[:,0],'*r')
+            plt.plot(hemo_coords[:,1],hemo_coords[:,0],'xr',markersize=12)
                 
-        plt.savefig('../detect_results' + os.sep + 'example_image' + im_name + '.png')
+        plt.savefig('../detect_results' + os.sep + 'image_' + im_name + '.png')
         plt.show()
         plt.close()
     
-    
+        plt.figure()
+        plt.imshow(hm, cmap='plasma')
+        plt.savefig('../detect_results' + os.sep + 'image_' + im_name + 'hm' + '.png')
+        plt.show()
+        plt.close()
 
     out = [tp, fp, fn]
     return out
@@ -97,7 +101,9 @@ def get_dice_val(min_h, min_d, thr):
     FN = tp_fp_fn[2]
     
     dice = 2*TP / (2*TP + FP + FN)
-    return dice
+    Se = TP / (TP+FN)
+    PPV = TP / (TP+FP)
+    return dice,Se,PPV
 
 class Wrapper(object):
     def __init__(self, min_h, min_d, thr):
@@ -117,7 +123,9 @@ if __name__ == '__main__':
     thr = 0.75963
     
  
-    dice = get_dice_val(min_h, min_d, thr)
+    dice,Se,PPV = get_dice_val(min_h, min_d, thr)
     print(dice)
+    print(Se)
+    print(PPV)
     
     
